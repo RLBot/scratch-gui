@@ -8,6 +8,20 @@ const motion = function (isStage, targetId) {
         ${isStage ? `
         <label text="Stage selected: no motion blocks"></label>
         ` : `
+        <block type="motion_setthrottle">
+            <value name="NUM">
+                <shadow type="math_number">
+                    <field name="NUM">1</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motion_setsteer">
+            <value name="NUM">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
         <block type="motion_movesteps">
             <value name="STEPS">
                 <shadow type="math_number">

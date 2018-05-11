@@ -1,3 +1,39 @@
+# RLBot Stuff
+
+## Development Environment
+
+### General Info
+
+You need three repositories, this is only one of them.
+1. scratch-gui (this one)
+2. scratch-vm
+3. scratch-blocks
+
+You need to build scratch-blocks first, then scratch-vm, then scratch-gui. They all have different commands for building.
+Visit their README files for more information.
+
+### Setup for this package
+
+1. Be on Linux
+1. Make sure you've cloned scratch-vm and scratch-blocks into the same parent directory as scratch-gui.
+1. Install node.js
+   - If you already have it, update to the latest version or you'll get bad problems like I did.
+   - Also update npm: `npm install -g npm`
+1. Run `npm install -g npm-install-peers`
+1. Make sure you're running Python 2.7
+1. Run `npm install` from this directory.
+
+### Running scratch
+
+1. Execute `npm start`.
+2. Open a browser and navigate to http://localhost:8601/
+
+Sometimes when you change source files, the page will reload and update automatically. Sometimes it will reload but not actually be updated,
+and in that case you should Ctrl+C and run `npm start` again.
+
+If you change anything in scratch-gui or scratch-vm, you need to rebuild those packages according to the instructions in their readme files,
+then run `npm start` again.
+
 # scratch-gui
 #### Scratch GUI is a set of React components that comprise the interface for creating and running Scratch 3.0 projects
 

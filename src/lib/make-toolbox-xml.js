@@ -400,6 +400,7 @@ const sensing = function (isStage) {
     return `
     <category name="Sensing" colour="#4CBFE6" secondaryColour="#2E8EB8">
         ${isStage ? '' : `
+            <block type="sensing_rlbot_location"/>
             <block type="sensing_touchingobject">
                 <value name="TOUCHINGOBJECTMENU">
                     <shadow type="sensing_touchingobjectmenu"/>
@@ -469,6 +470,7 @@ const sensing = function (isStage) {
 const operators = function () {
     return `
     <category name="Operators" colour="#40BF4A" secondaryColour="#389438">
+        <block type="operator_vec_add" />
         <block type="operator_add">
             <value name="NUM1">
                 <shadow type="math_number">
@@ -695,4 +697,4 @@ const makeToolboxXML = function (isStage, targetId, categoriesXML) {
     return everything.join('\n');
 };
 
-export default makeToolboxXML;
+export default makeToolboxXML

@@ -90,9 +90,6 @@ const GUIComponent = props => {
             className={styles.pageWrapper}
             {...componentProps}
         >
-            {previewInfoVisible ? (
-                <PreviewModal />
-            ) : null}
             {loading ? (
                 <Loader />
             ) : null}

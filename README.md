@@ -34,6 +34,16 @@ and in that case you should Ctrl+C and run `npm start` again.
 If you change anything in scratch-gui or scratch-vm, you need to rebuild those packages according to the instructions in their readme files,
 then run `npm start` again.
 
+### Uploading to the website
+
+I (tarehart) am hosting a static website at rlbot.org. You can deploy this
+scratch app to it by running `npm run s3deploy`.
+
+In order for it to work, you will need to have some aws access keys configured on your system:
+https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
+
+Contact me for help obtaining access.
+
 # scratch-gui
 #### Scratch GUI is a set of React components that comprise the interface for creating and running Scratch 3.0 projects
 

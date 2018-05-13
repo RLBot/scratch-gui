@@ -22,6 +22,48 @@ const motion = function (isStage, targetId) {
                 </shadow>
             </value>
         </block>
+        <block type="motion_setpitch">
+            <value name="NUM">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motion_setyaw">
+            <value name="NUM">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motion_setroll">
+            <value name="NUM">
+                <shadow type="math_number">
+                    <field name="NUM">0</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motion_setjump">
+            <value name="BIT">
+                <shadow type="math_integer">
+                    <field name="NUM">1</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motion_setboost">
+            <value name="BIT">
+                <shadow type="math_integer">
+                    <field name="NUM">1</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="motion_sethandbrake">
+            <value name="BIT">
+                <shadow type="math_integer">
+                    <field name="NUM">1</field>
+                </shadow>
+            </value>
+        </block>
         <block type="motion_movesteps">
             <value name="STEPS">
                 <shadow type="math_number">
@@ -415,6 +457,8 @@ const sensing = function (isStage) {
     <category name="Sensing" colour="#4CBFE6" secondaryColour="#2E8EB8">
         ${isStage ? '' : `
             <block type="sensing_rlbot_location"/>
+            <block type="sensing_rlbot_velocity"/>
+            <block type="sensing_rlbot_degreesto"/>
             <block type="sensing_touchingobject">
                 <value name="TOUCHINGOBJECTMENU">
                     <shadow type="sensing_touchingobjectmenu"/>
@@ -440,6 +484,11 @@ const sensing = function (isStage) {
             </block>
             ${blockSeparator}
         `}
+        <block id="vectorof" type="sensing_vectorof">
+            <value name="OBJECT">
+                <shadow id="sensing_vectorof_object_menu" type="sensing_of_object_menu"/>
+            </value>
+        </block>
         <block id="askandwait" type="sensing_askandwait">
             <value name="QUESTION">
                 <shadow type="text">

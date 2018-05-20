@@ -38,7 +38,7 @@ class GUI extends React.Component {
                 self.props.vm.loadProject(buffer)
                     .then(() => {
                         self.setState({loading: false}, () => {
-                            self.props.vm.setCompatibilityMode(true);
+                            self.props.vm.setCompatibilityMode(false); // false to run at 60 fps
                             self.props.vm.start();
                         });
                     })

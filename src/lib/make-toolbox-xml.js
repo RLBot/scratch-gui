@@ -534,6 +534,36 @@ const operators = function () {
     return `
     <category name="Operators" colour="#40BF4A" secondaryColour="#389438">
         <block type="operator_vec_add" />
+        <block type="operator_vec_subtract" />
+        <block type="operator_vec_magnitude" />
+        <block type="operator_vec_constructor">
+            <value name="NUM1">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+            <value name="NUM2">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+            <value name="NUM3">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+        </block>
+        <block type="operator_vec_xval" />
+        <block type="operator_vec_yval" />
+        <block type="operator_vec_zval" />
+        <block type="operator_vec_normalized" />
+        <block type="operator_vec_scaled">
+            <value name="NUM">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+        </block>
         <block type="operator_add">
             <value name="NUM1">
                 <shadow type="math_number">

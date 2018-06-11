@@ -4,6 +4,7 @@ import {FormattedMessage} from 'react-intl';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import VM from 'scratch-vm';
 import Box from '../box/box.jsx';
 import Button from '../button/button.jsx';
 import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
@@ -13,6 +14,7 @@ import ProjectLoader from '../../containers/project-loader.jsx';
 import Menu from '../../containers/menu.jsx';
 import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectSaver from '../../containers/project-saver.jsx';
+import debounce from 'lodash.debounce';
 
 import {openTipsLibrary} from '../../reducers/modals';
 import {
@@ -25,6 +27,9 @@ import {
 } from '../../reducers/menus';
 
 import styles from './menu-bar.css';
+import inputStyles from '../forms/input.css';
+import labelStyles from '../forms/label.css';
+import buttonStyles from '../button/button.css';
 
 import mystuffIcon from './icon--mystuff.png';
 import feedbackIcon from './icon--feedback.svg';
@@ -32,6 +37,8 @@ import profileIcon from './icon--profile.png';
 import communityIcon from './icon--see-community.svg';
 import dropdownCaret from '../language-selector/dropdown-caret.svg';
 import scratchLogo from './scratch-logo.svg';
+import connectedIcon from './icon--connected.svg';
+import errorIcon from './icon--error.svg';
 
 import helpIcon from './icon--help.svg';
 
@@ -98,7 +105,33 @@ MenuBarMenu.propTypes = {
     place: PropTypes.oneOf(['left', 'right'])
 };
 
-const MenuBar = props => (
+
+
+class MenuBar extends React.Component {
+    constructor(props) {
+        super(props);
+        let self = this;
+        self.state = {isConnected: false, hostInput: "localhost"};
+        self.hostUpdater = debounce((evt) => { props.vm.runtime.rlbotManager.setHost(evt.target.value); }, 500);
+        
+    }
+
+    componentDidMount() {
+        let self = this;
+        this.interval = setInterval(() => {
+            self.setState({isConnected: self.props.vm.runtime.rlbotManager.hasConnection});
+        }, 200);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+      }
+
+    render() {
+        let props = this.props;
+        let self = this;
+        return (    
+
     <Box className={styles.menuBar}>
         <div className={styles.mainMenu}>
             <div className={styles.fileGroup}>
@@ -297,6 +330,24 @@ const MenuBar = props => (
                 </Button>
             </a>
         </div>
+        <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
+            <label className={classNames(labelStyles.inputGroup)}>
+                <span className={classNames(labelStyles.inputLabel)}>Host</span>
+                <input className={classNames(inputStyles.inputForm)} type="text" value={this.state.hostInput}
+                onChange={
+                    (evt) => {
+                        evt.persist();
+                        self.setState({hostInput: evt.target.value})
+                        self.hostUpdater(evt);
+                    }
+                } />
+                <img
+                    className={classNames(buttonStyles.icon)}
+                    draggable={false}
+                    src={self.state.isConnected ? connectedIcon : errorIcon}
+                />
+            </label>
+        </div>
         <div className={styles.accountInfoWrapper}>
             <div
                 aria-label="How-to Library"
@@ -348,7 +399,8 @@ const MenuBar = props => (
             </MenuBarItemTooltip>
         </div>
     </Box>
-);
+    )};
+}
 
 MenuBar.propTypes = {
     editMenuOpen: PropTypes.bool,
@@ -357,7 +409,8 @@ MenuBar.propTypes = {
     onClickFile: PropTypes.func,
     onOpenTipLibrary: PropTypes.func,
     onRequestCloseEdit: PropTypes.func,
-    onRequestCloseFile: PropTypes.func
+    onRequestCloseFile: PropTypes.func,
+    vm: PropTypes.instanceOf(VM).isRequired
 };
 
 const mapStateToProps = state => ({

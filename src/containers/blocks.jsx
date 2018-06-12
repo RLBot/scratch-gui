@@ -245,7 +245,12 @@ class Blocks extends React.Component {
         if (this.props.vm.editingTarget) {
             const target = this.props.vm.editingTarget;
             const dynamicBlocksXML = this.props.vm.runtime.getBlocksXML();
-            const toolboxXML = makeToolboxXML(target.isStage, target.id, dynamicBlocksXML);
+            const toolboxXML = makeToolboxXML(
+                target.isStage, 
+                target.rlbotType === 'car', 
+                target.rlbotType === 'ball', 
+                target.id, 
+                dynamicBlocksXML);
             this.props.updateToolboxState(toolboxXML);
         }
 
@@ -277,7 +282,12 @@ class Blocks extends React.Component {
         const target = runtime.getEditingTarget() || runtime.getTargetForStage();
         if (target) {
             const dynamicBlocksXML = runtime.getBlocksXML();
-            const toolboxXML = makeToolboxXML(target.isStage, target.id, dynamicBlocksXML);
+            const toolboxXML = makeToolboxXML(
+                target.isStage, 
+                target.rlbotType === 'car', 
+                target.rlbotType === 'ball', 
+                target.id, 
+                dynamicBlocksXML);
             this.props.updateToolboxState(toolboxXML);
         }
     }

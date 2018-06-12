@@ -2,12 +2,14 @@ const categorySeparator = '<sep gap="36"/>';
 
 const blockSeparator = '<sep gap="36"/>'; // At default scale, about 28px
 
-const motion = function (isStage, targetId) {
+const motion = function (isStage, targetId, isCar, isBall) {
     return `
     <category name="Motion" colour="#4C97FF" secondaryColour="#3373CC">
         ${isStage ? `
         <label text="Stage selected: no motion blocks"></label>
-        ` : `
+        ` : isBall ? `
+        <label text="Ball selected: no motion blocks"></label>
+        ` : isCar ? `
         <block type="motion_setthrottle">
             <value name="NUM">
                 <shadow type="math_number">
@@ -45,25 +47,24 @@ const motion = function (isStage, targetId) {
         </block>
         <block type="motion_setjump">
             <value name="BIT">
-                <shadow type="math_integer">
-                    <field name="NUM">1</field>
-                </shadow>
+                <shadow type="logic_boolean"></shadow>
             </value>
         </block>
         <block type="motion_setboost">
             <value name="BIT">
-                <shadow type="math_integer">
-                    <field name="NUM">1</field>
-                </shadow>
+                <shadow type="logic_boolean"></shadow>
             </value>
         </block>
         <block type="motion_sethandbrake">
             <value name="BIT">
-                <shadow type="math_integer">
-                    <field name="NUM">1</field>
-                </shadow>
+                <shadow type="logic_boolean"></shadow>
             </value>
         </block>
+        ${blockSeparator}
+        <block id="${targetId}_xposition" type="motion_xposition"/>
+        <block id="${targetId}_yposition" type="motion_yposition"/>
+        <block id="${targetId}_direction" type="motion_direction"/>
+        ` : `
         <block type="motion_movesteps">
             <value name="STEPS">
                 <shadow type="math_number">
@@ -666,6 +667,8 @@ const operators = function () {
         <block type="operator_and"/>
         <block type="operator_or"/>
         <block type="operator_not"/>
+        <block type="operator_true" />
+        <block type="operator_false" />
         ${blockSeparator}
         <block type="operator_join">
             <value name="STRING1">
@@ -766,12 +769,12 @@ const xmlClose = '</xml>';
  * @param {string?} categoriesXML - null for default toolbox, or an XML string with <category> elements.
  * @returns {string} - a ScratchBlocks-style XML document for the contents of the toolbox.
  */
-const makeToolboxXML = function (isStage, targetId, categoriesXML) {
+const makeToolboxXML = function (isStage, isCar, isBall, targetId, categoriesXML) {
     const gap = [categorySeparator];
 
     const everything = [
         xmlOpen,
-        motion(isStage, targetId), gap,
+        motion(isStage, targetId, isCar, isBall), gap,
         looks(isStage, targetId), gap,
         sound(isStage, targetId), gap,
         events(isStage, targetId), gap,

@@ -111,9 +111,23 @@ class MenuBar extends React.Component {
     constructor(props) {
         super(props);
         let self = this;
-        self.state = {isConnected: false, hostInput: "localhost"};
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const host = urlParams.get('host') || 'localhost';
+        const players = urlParams.get('players');
+
+        self.state = {
+            isConnected: false, 
+            hostInput: host, 
+            p1: !players || players.indexOf(1) >= 0, 
+            p2: !players || players.indexOf(2) >= 0
+        };
+
+        props.vm.runtime.rlbotManager.setHost(host);
+        props.vm.runtime.rlbotManager.filterPlayer(0, self.state.p1);
+        props.vm.runtime.rlbotManager.filterPlayer(1, self.state.p2);
+
         self.hostUpdater = debounce((evt) => { props.vm.runtime.rlbotManager.setHost(evt.target.value); }, 500);
-        
     }
 
     componentDidMount() {
@@ -346,6 +360,19 @@ class MenuBar extends React.Component {
                     draggable={false}
                     src={self.state.isConnected ? connectedIcon : errorIcon}
                 />
+            </label>
+        </div>
+        <div className={classNames(styles.menuBarItem)}>
+            <span className={classNames(labelStyles.inputLabel)}>Players</span>
+            <label className={classNames(labelStyles.inputGroup)}>
+                <span>p1</span>
+                <input type="checkbox" defaultChecked={self.state.p1} 
+                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(0, evt.target.checked) } />
+            </label>
+            <label className={classNames(labelStyles.inputGroup)}>
+                <span>p2</span>
+                <input type="checkbox" defaultChecked={self.state.p2} 
+                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(1, evt.target.checked) } />
             </label>
         </div>
         <div className={styles.accountInfoWrapper}>

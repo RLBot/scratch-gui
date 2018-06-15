@@ -1,0 +1,43 @@
+.button {
+    background-color: #eee;
+    border-radius: 2px;
+    border: solid 1px #ccc;
+    padding: 4px;
+    margin: 2px;
+}
+
+.on {
+    background-color: rgb(92, 177, 214);
+    border-color: #99a;
+}
+
+.meter-container {
+    background-color: #eee;
+    border-radius: 2px;
+    border: solid 1px #ccc;
+    margin: 2px;
+    display: inline-block;
+    position: relative;
+    width: 70px;
+    margin-top: 10px;
+}
+
+.meter {
+    background-color: rgb(92, 177, 214);
+    height: 6px;
+}
+
+.middle-mark {
+    background-color: rgb(37, 37, 37);
+    width: 2px;
+    height: 6px;
+    position: absolute;
+    left: 33px;
+}
+
+.meter-label {
+    padding: 2px;
+    text-align: center;
+    border-top: solid 1px rgb(221, 221, 221);
+}
+

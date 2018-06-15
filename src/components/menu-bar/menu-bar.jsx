@@ -120,12 +120,16 @@ class MenuBar extends React.Component {
             isConnected: false, 
             hostInput: host, 
             p1: !players || players.indexOf(1) >= 0, 
-            p2: !players || players.indexOf(2) >= 0
+            p2: !players || players.indexOf(2) >= 0,
+            p3: !players || players.indexOf(3) >= 0,
+            p4: !players || players.indexOf(4) >= 0
         };
 
         props.vm.runtime.rlbotManager.setHost(host);
         props.vm.runtime.rlbotManager.filterPlayer(0, self.state.p1);
         props.vm.runtime.rlbotManager.filterPlayer(1, self.state.p2);
+        props.vm.runtime.rlbotManager.filterPlayer(2, self.state.p3);
+        props.vm.runtime.rlbotManager.filterPlayer(3, self.state.p4);
 
         self.hostUpdater = debounce((evt) => { props.vm.runtime.rlbotManager.setHost(evt.target.value); }, 500);
     }
@@ -373,6 +377,16 @@ class MenuBar extends React.Component {
                 <span>p2</span>
                 <input type="checkbox" defaultChecked={self.state.p2} 
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(1, evt.target.checked) } />
+            </label>
+            <label className={classNames(labelStyles.inputGroup)}>
+                <span>p3</span>
+                <input type="checkbox" defaultChecked={self.state.p3} 
+                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(2, evt.target.checked) } />
+            </label>
+            <label className={classNames(labelStyles.inputGroup)}>
+                <span>p4</span>
+                <input type="checkbox" defaultChecked={self.state.p4} 
+                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(3, evt.target.checked) } />
             </label>
         </div>
         <div className={styles.accountInfoWrapper}>

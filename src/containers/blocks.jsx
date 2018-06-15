@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import VMScratchBlocks from '../lib/blocks';
 import VM from 'scratch-vm';
+import classNames from 'classnames';
 
 import analytics from '../lib/analytics';
 import Prompt from './prompt.jsx';
@@ -13,6 +14,9 @@ import BlocksComponent from '../components/blocks/blocks.jsx';
 import ExtensionLibrary from './extension-library.jsx';
 import CustomProcedures from './custom-procedures.jsx';
 import errorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
+import Controller from '../components/rlbot/controller.jsx';
+
+import styles from './blocks.css';
 
 import {connect} from 'react-redux';
 import {updateToolbox} from '../reducers/toolbox';
@@ -48,6 +52,7 @@ class Blocks extends React.Component {
             'handleExtensionAdded',
             'handleBlocksInfoUpdate',
             'onTargetsUpdate',
+            'onControllerUpdate',
             'onVisualReport',
             'onWorkspaceUpdate',
             'onWorkspaceMetricsChange',
@@ -91,6 +96,7 @@ class Blocks extends React.Component {
     }
     shouldComponentUpdate (nextProps, nextState) {
         return (
+            nextState.controller ||
             this.state.prompt !== nextState.prompt ||
             this.props.isVisible !== nextProps.isVisible ||
             this.props.toolboxXML !== nextProps.toolboxXML ||
@@ -179,6 +185,7 @@ class Blocks extends React.Component {
         this.props.vm.addListener('targetsUpdate', this.onTargetsUpdate);
         this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
+        this.props.vm.runtime.rlbotManager.addListener('controllerUpdate', this.onControllerUpdate);
     }
     detachVM () {
         this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -190,6 +197,7 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('targetsUpdate', this.onTargetsUpdate);
         this.props.vm.removeListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.removeListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
+        this.props.vm.runtime.rlbotManager.removeListener('controllerUpdate', this.onControllerUpdate);
     }
 
     updateToolboxBlockValue (id, value) {
@@ -212,6 +220,16 @@ class Blocks extends React.Component {
             });
         }
     }
+
+    onControllerUpdate (update) {
+        if (this.props.vm.editingTarget) {
+            const target = this.props.vm.editingTarget;
+            if (target.rlbotType === 'car' && update.playerIndex === target.rlbotIndex) {
+                this.setState({controller: update.controller});
+            }
+        }
+    }
+
     onWorkspaceMetricsChange () {
         const target = this.props.vm.editingTarget;
         if (target && target.id) {
@@ -241,6 +259,9 @@ class Blocks extends React.Component {
         this.workspace.reportValue(data.id, data.value);
     }
     onWorkspaceUpdate (data) {
+
+        this.setState({controller: null});
+
         // When we change sprites, update the toolbox to have the new sprite's blocks
         if (this.props.vm.editingTarget) {
             const target = this.props.vm.editingTarget;
@@ -372,6 +393,11 @@ class Blocks extends React.Component {
                         }}
                         onRequestClose={this.handleCustomProceduresClose}
                     />
+                ) : null}
+                {this.state.controller ? (
+                    <div className={classNames(styles.controllerContainer)}>
+                        <Controller cs={this.state.controller} />
+                    </div>
                 ) : null}
             </div>
         );

@@ -368,22 +368,22 @@ class MenuBar extends React.Component {
         </div>
         <div className={classNames(styles.menuBarItem)}>
             <span className={classNames(labelStyles.inputLabel)}>Players</span>
-            <label className={classNames(labelStyles.inputGroup)}>
+            <label className={classNames(styles.playerCheck)}>
                 <span>p1</span>
                 <input type="checkbox" defaultChecked={self.state.p1} 
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(0, evt.target.checked) } />
             </label>
-            <label className={classNames(labelStyles.inputGroup)}>
+            <label className={classNames(styles.playerCheck)}>
                 <span>p2</span>
                 <input type="checkbox" defaultChecked={self.state.p2} 
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(1, evt.target.checked) } />
             </label>
-            <label className={classNames(labelStyles.inputGroup)}>
+            <label className={classNames(styles.playerCheck)}>
                 <span>p3</span>
                 <input type="checkbox" defaultChecked={self.state.p3} 
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(2, evt.target.checked) } />
             </label>
-            <label className={classNames(labelStyles.inputGroup)}>
+            <label className={classNames(styles.playerCheck)}>
                 <span>p4</span>
                 <input type="checkbox" defaultChecked={self.state.p4} 
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(3, evt.target.checked) } />

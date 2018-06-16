@@ -9,9 +9,6 @@ class Controller extends React.Component {
     }
 
     render () {
-
-        console.log(!!this.props.cs.jump);
-
         return (
             <div>
                 <div style={{textAlign: 'right'}}>

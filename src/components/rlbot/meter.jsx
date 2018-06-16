@@ -25,9 +25,9 @@ class Meter extends React.Component {
 
         return (
             <div className={classNames(styles.meterContainer)}>
-                <div class={classNames(styles.middleMark)}></div>
-                <div class={classNames(styles.meter)} style={{marginLeft: marginLeft + '%', width: percentage + '%'}}></div>
-                <div class={classNames(styles.meterLabel)}>{this.props.label}</div>
+                <div className={classNames(styles.middleMark)}></div>
+                <div className={classNames(styles.meter)} style={{marginLeft: marginLeft + '%', width: percentage + '%'}}></div>
+                <div className={classNames(styles.meterLabel)}>{this.props.label}</div>
             </div>
         );
     }

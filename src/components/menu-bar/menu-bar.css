@@ -166,3 +166,13 @@
     width: 0.5rem;
     height: 0.5rem;
 }
+
+.player-check {
+    margin-right: 6px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding-left: 3px;
+    border-radius: 6px;
+}

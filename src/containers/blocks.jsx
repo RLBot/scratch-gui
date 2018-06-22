@@ -14,6 +14,7 @@ import BlocksComponent from '../components/blocks/blocks.jsx';
 import ExtensionLibrary from './extension-library.jsx';
 import CustomProcedures from './custom-procedures.jsx';
 import errorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
+import {STAGE_DISPLAY_SIZES} from '../lib/layout-constants';
 import Controller from '../components/rlbot/controller.jsx';
 
 import styles from './blocks.css';
@@ -102,10 +103,17 @@ class Blocks extends React.Component {
             this.props.toolboxXML !== nextProps.toolboxXML ||
             this.props.extensionLibraryVisible !== nextProps.extensionLibraryVisible ||
             this.props.customProceduresVisible !== nextProps.customProceduresVisible ||
-            this.props.locale !== nextProps.locale
+            this.props.locale !== nextProps.locale ||
+            this.props.anyModalVisible !== nextProps.anyModalVisible ||
+            this.props.stageSize !== nextProps.stageSize
         );
     }
     componentDidUpdate (prevProps) {
+        // If any modals are open, call hideChaff to close z-indexed field editors
+        if (this.props.anyModalVisible && !prevProps.anyModalVisible) {
+            this.ScratchBlocks.hideChaff();
+        }
+
         if (prevProps.locale !== this.props.locale) {
             this.props.vm.setLocale(this.props.locale, this.props.messages);
         }
@@ -118,6 +126,10 @@ class Blocks extends React.Component {
             }, 0);
         }
         if (this.props.isVisible === prevProps.isVisible) {
+            if (this.props.stageSize !== prevProps.stageSize) {
+                // force workspace to redraw for the new stage size
+                window.dispatchEvent(new Event('resize'));
+            }
             return;
         }
         // @todo hack to resize blockly manually in case resize happened while hidden
@@ -125,6 +137,8 @@ class Blocks extends React.Component {
         if (this.props.isVisible) { // Scripts tab
             this.workspace.setVisible(true);
             this.props.vm.refreshWorkspace();
+            // Re-enable toolbox refreshes without causing one. See #updateToolbox for more info.
+            this.workspace.toolboxRefreshEnabled_ = true;
             window.dispatchEvent(new Event('resize'));
         } else {
             this.workspace.setVisible(false);
@@ -139,7 +153,7 @@ class Blocks extends React.Component {
     updateToolbox () {
         this.toolboxUpdateTimeout = false;
 
-        const categoryName = this.workspace.toolbox_.getSelectedCategoryName();
+        const categoryId = this.workspace.toolbox_.getSelectedCategoryId();
         const offset = this.workspace.toolbox_.getCategoryScrollOffset();
         this.workspace.updateToolbox(this.props.toolboxXML);
         // In order to catch any changes that mutate the toolbox during "normal runtime"
@@ -147,8 +161,8 @@ class Blocks extends React.Component {
         // Using the setter function will rerender the entire toolbox which we just rendered.
         this.workspace.toolboxRefreshEnabled_ = true;
 
-        const currentCategoryPos = this.workspace.toolbox_.getCategoryPositionByName(categoryName);
-        const currentCategoryLen = this.workspace.toolbox_.getCategoryLengthByName(categoryName);
+        const currentCategoryPos = this.workspace.toolbox_.getCategoryPositionById(categoryId);
+        const currentCategoryLen = this.workspace.toolbox_.getCategoryLengthById(categoryId);
         if (offset < currentCategoryLen) {
             this.workspace.toolbox_.setFlyoutScrollPos(currentCategoryPos + offset);
         } else {
@@ -267,10 +281,10 @@ class Blocks extends React.Component {
             const target = this.props.vm.editingTarget;
             const dynamicBlocksXML = this.props.vm.runtime.getBlocksXML();
             const toolboxXML = makeToolboxXML(
-                target.isStage, 
-                target.rlbotType === 'car', 
-                target.rlbotType === 'ball', 
-                target.id, 
+                target.isStage,
+                target.rlbotType === 'car',
+                target.rlbotType === 'ball',
+                target.id,
                 dynamicBlocksXML);
             this.props.updateToolboxState(toolboxXML);
         }
@@ -304,10 +318,10 @@ class Blocks extends React.Component {
         if (target) {
             const dynamicBlocksXML = runtime.getBlocksXML();
             const toolboxXML = makeToolboxXML(
-                target.isStage, 
-                target.rlbotType === 'car', 
-                target.rlbotType === 'ball', 
-                target.id, 
+                target.isStage,
+                target.rlbotType === 'car',
+                target.rlbotType === 'ball',
+                target.id,
                 dynamicBlocksXML);
             this.props.updateToolboxState(toolboxXML);
         }
@@ -316,9 +330,9 @@ class Blocks extends React.Component {
         // @todo Later we should replace this to avoid all the warnings from redefining blocks.
         this.handleExtensionAdded(blocksInfo);
     }
-    handleCategorySelected (categoryName) {
+    handleCategorySelected (categoryId) {
         this.withToolboxUpdates(() => {
-            this.workspace.toolbox_.setSelectedCategoryByName(categoryName);
+            this.workspace.toolbox_.setSelectedCategoryById(categoryId);
         });
     }
     setBlocks (blocks) {
@@ -343,15 +357,16 @@ class Blocks extends React.Component {
         this.props.onRequestCloseCustomProcedures(data);
         const ws = this.workspace;
         ws.refreshToolboxSelection_();
-        // @todo ensure this does not break on localization
-        ws.toolbox_.scrollToCategoryByName('My Blocks');
+        ws.toolbox_.scrollToCategoryById('myBlocks');
     }
     render () {
         /* eslint-disable no-unused-vars */
         const {
+            anyModalVisible,
             customProceduresVisible,
             extensionLibraryVisible,
             options,
+            stageSize,
             vm,
             isVisible,
             onActivateColorPicker,
@@ -405,6 +420,7 @@ class Blocks extends React.Component {
 }
 
 Blocks.propTypes = {
+    anyModalVisible: PropTypes.bool,
     customProceduresVisible: PropTypes.bool,
     extensionLibraryVisible: PropTypes.bool,
     isVisible: PropTypes.bool,
@@ -436,6 +452,7 @@ Blocks.propTypes = {
         comments: PropTypes.bool,
         collapse: PropTypes.bool
     }),
+    stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
     toolboxXML: PropTypes.string,
     updateToolboxState: PropTypes.func,
     vm: PropTypes.instanceOf(VM).isRequired
@@ -464,8 +481,9 @@ Blocks.defaultOptions = {
         fieldShadow: 'rgba(255, 255, 255, 0.3)',
         dragShadowOpacity: 0.6
     },
-    comments: false,
-    collapse: false
+    comments: true,
+    collapse: false,
+    sounds: false
 };
 
 Blocks.defaultProps = {
@@ -474,11 +492,15 @@ Blocks.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-    extensionLibraryVisible: state.modals.extensionLibrary,
+    anyModalVisible: (
+        Object.keys(state.scratchGui.modals).some(key => state.scratchGui.modals[key]) ||
+        state.scratchGui.mode.isFullScreen
+    ),
+    extensionLibraryVisible: state.scratchGui.modals.extensionLibrary,
     locale: state.intl.locale,
     messages: state.intl.messages,
-    toolboxXML: state.toolbox.toolboxXML,
-    customProceduresVisible: state.customProcedures.active
+    toolboxXML: state.scratchGui.toolbox.toolboxXML,
+    customProceduresVisible: state.scratchGui.customProcedures.active
 });
 
 const mapDispatchToProps = dispatch => ({

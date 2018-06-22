@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import {connect} from 'react-redux';
-import {FormattedMessage} from 'react-intl';
+import {defineMessages, FormattedMessage, injectIntl, intlShape} from 'react-intl';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -17,13 +17,17 @@ import ProjectSaver from '../../containers/project-saver.jsx';
 import debounce from 'lodash.debounce';
 
 import {openTipsLibrary} from '../../reducers/modals';
+import {setPlayer} from '../../reducers/mode';
 import {
     openFileMenu,
     closeFileMenu,
     fileMenuOpen,
     openEditMenu,
     closeEditMenu,
-    editMenuOpen
+    editMenuOpen,
+    openLanguageMenu,
+    closeLanguageMenu,
+    languageMenuOpen
 } from '../../reducers/menus';
 
 import styles from './menu-bar.css';
@@ -36,31 +40,58 @@ import feedbackIcon from './icon--feedback.svg';
 import profileIcon from './icon--profile.png';
 import communityIcon from './icon--see-community.svg';
 import dropdownCaret from '../language-selector/dropdown-caret.svg';
+import languageIcon from '../language-selector/language-icon.svg';
+
 import scratchLogo from './scratch-logo.svg';
 import connectedIcon from './icon--connected.svg';
 import errorIcon from './icon--error.svg';
 
 import helpIcon from './icon--help.svg';
 
+const ariaMessages = defineMessages({
+    language: {
+        id: 'gui.menuBar.LanguageSelector',
+        defaultMessage: 'language selector',
+        description: 'accessibility text for the language selection menu'
+    },
+    howTo: {
+        id: 'gui.menuBar.howToLibrary',
+        defaultMessage: 'How-to Library',
+        description: 'accessibility text for the how-to library button'
+    }
+});
+
 const MenuBarItemTooltip = ({
     children,
     className,
+    enable,
     id,
     place = 'bottom'
-}) => (
-    <ComingSoonTooltip
-        className={classNames(styles.comingSoon, className)}
-        place={place}
-        tooltipClassName={styles.comingSoonTooltip}
-        tooltipId={id}
-    >
-        {children}
-    </ComingSoonTooltip>
-);
+}) => {
+    if (enable) {
+        return (
+            <React.Fragment>
+                {children}
+            </React.Fragment>
+        );
+    }
+    return (
+        <ComingSoonTooltip
+            className={classNames(styles.comingSoon, className)}
+            place={place}
+            tooltipClassName={styles.comingSoonTooltip}
+            tooltipId={id}
+        >
+            {children}
+        </ComingSoonTooltip>
+    );
+};
+
 
 MenuBarItemTooltip.propTypes = {
     children: PropTypes.node,
     className: PropTypes.string,
+    enable: PropTypes.bool,
     id: PropTypes.string,
     place: PropTypes.oneOf(['top', 'bottom', 'left', 'right'])
 };
@@ -117,9 +148,9 @@ class MenuBar extends React.Component {
         const players = urlParams.get('players');
 
         self.state = {
-            isConnected: false, 
-            hostInput: host, 
-            p1: !players || players.indexOf(1) >= 0, 
+            isConnected: false,
+            hostInput: host,
+            p1: !players || players.indexOf(1) >= 0,
             p2: !players || players.indexOf(2) >= 0,
             p3: !players || players.indexOf(3) >= 0,
             p4: !players || players.indexOf(4) >= 0
@@ -148,7 +179,7 @@ class MenuBar extends React.Component {
     render() {
         let props = this.props;
         let self = this;
-        return (    
+        return (
 
     <Box className={styles.menuBar}>
         <div className={styles.mainMenu}>
@@ -161,12 +192,37 @@ class MenuBar extends React.Component {
                         src={scratchLogo}
                     />
                 </div>
-                <div className={classNames(styles.menuBarItem, styles.hoverable)}>
+                <div
+                    className={classNames(styles.menuBarItem, styles.hoverable, {
+                        [styles.active]: props.languageMenuOpen
+                    })}
+                    onMouseUp={props.onClickLanguage}
+                >
                     <MenuBarItemTooltip
+                        enable={window.location.search.indexOf('enable=language') !== -1}
                         id="menubar-selector"
                         place="right"
                     >
-                        <LanguageSelector />
+                        <div
+                            aria-label={props.intl.formatMessage(ariaMessages.language)}
+                            className={classNames(styles.languageMenu)}
+                        >
+                            <img
+                                className={styles.languageIcon}
+                                src={languageIcon}
+                            />
+                            <img
+                                className={styles.dropdownCaret}
+                                src={dropdownCaret}
+                            />
+                        </div>
+                        <MenuBarMenu
+                            open={props.languageMenuOpen}
+                            onRequestClose={props.onRequestCloseLanguage}
+                        >
+                            <LanguageSelector />
+                        </MenuBarMenu>
+
                     </MenuBarItemTooltip>
                 </div>
                 <div
@@ -314,19 +370,33 @@ class MenuBar extends React.Component {
                 </MenuBarItemTooltip>
             </div>
             <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
-                <MenuBarItemTooltip id="community-button">
+                {props.enableCommunity ?
                     <Button
                         className={classNames(styles.communityButton)}
                         iconClassName={styles.communityButtonIcon}
                         iconSrc={communityIcon}
+                        onClick={props.onSeeCommunity}
                     >
                         <FormattedMessage
                             defaultMessage="See Community"
                             description="Label for see community button"
                             id="gui.menuBar.seeCommunity"
                         />
-                    </Button>
-                </MenuBarItemTooltip>
+                    </Button> :
+                    <MenuBarItemTooltip id="community-button">
+                        <Button
+                            className={classNames(styles.communityButton)}
+                            iconClassName={styles.communityButtonIcon}
+                            iconSrc={communityIcon}
+                        >
+                            <FormattedMessage
+                                defaultMessage="See Community"
+                                description="Label for see community button"
+                                id="gui.menuBar.seeCommunity"
+                            />
+                        </Button>
+                    </MenuBarItemTooltip>
+                }
             </div>
         </div>
         <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
@@ -370,28 +440,28 @@ class MenuBar extends React.Component {
             <span className={classNames(labelStyles.inputLabel)}>Players</span>
             <label className={classNames(styles.playerCheck)}>
                 <span>p1</span>
-                <input type="checkbox" defaultChecked={self.state.p1} 
+                <input type="checkbox" defaultChecked={self.state.p1}
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(0, evt.target.checked) } />
             </label>
             <label className={classNames(styles.playerCheck)}>
                 <span>p2</span>
-                <input type="checkbox" defaultChecked={self.state.p2} 
+                <input type="checkbox" defaultChecked={self.state.p2}
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(1, evt.target.checked) } />
             </label>
             <label className={classNames(styles.playerCheck)}>
                 <span>p3</span>
-                <input type="checkbox" defaultChecked={self.state.p3} 
+                <input type="checkbox" defaultChecked={self.state.p3}
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(2, evt.target.checked) } />
             </label>
             <label className={classNames(styles.playerCheck)}>
                 <span>p4</span>
-                <input type="checkbox" defaultChecked={self.state.p4} 
+                <input type="checkbox" defaultChecked={self.state.p4}
                 onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(3, evt.target.checked) } />
             </label>
         </div>
         <div className={styles.accountInfoWrapper}>
             <div
-                aria-label="How-to Library"
+                aria-label={props.intl.formatMessage(ariaMessages.howTo)}
                 className={classNames(styles.menuBarItem, styles.hoverable)}
                 onClick={props.onOpenTipLibrary}
             >
@@ -445,18 +515,25 @@ class MenuBar extends React.Component {
 
 MenuBar.propTypes = {
     editMenuOpen: PropTypes.bool,
+    enableCommunity: PropTypes.bool,
     fileMenuOpen: PropTypes.bool,
+    intl: intlShape,
+    languageMenuOpen: PropTypes.bool,
     onClickEdit: PropTypes.func,
     onClickFile: PropTypes.func,
+    onClickLanguage: PropTypes.func,
     onOpenTipLibrary: PropTypes.func,
     onRequestCloseEdit: PropTypes.func,
     onRequestCloseFile: PropTypes.func,
+    onRequestCloseLanguage: PropTypes.func,
+    onSeeCommunity: PropTypes.func,
     vm: PropTypes.instanceOf(VM).isRequired
 };
 
 const mapStateToProps = state => ({
     fileMenuOpen: fileMenuOpen(state),
-    editMenuOpen: editMenuOpen(state)
+    editMenuOpen: editMenuOpen(state),
+    languageMenuOpen: languageMenuOpen(state)
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -464,10 +541,13 @@ const mapDispatchToProps = dispatch => ({
     onClickFile: () => dispatch(openFileMenu()),
     onRequestCloseFile: () => dispatch(closeFileMenu()),
     onClickEdit: () => dispatch(openEditMenu()),
-    onRequestCloseEdit: () => dispatch(closeEditMenu())
+    onRequestCloseEdit: () => dispatch(closeEditMenu()),
+    onClickLanguage: () => dispatch(openLanguageMenu()),
+    onRequestCloseLanguage: () => dispatch(closeLanguageMenu()),
+    onSeeCommunity: () => dispatch(setPlayer(true))
 });
 
-export default connect(
+export default injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(MenuBar);
+)(MenuBar));

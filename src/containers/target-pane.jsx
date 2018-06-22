@@ -10,7 +10,7 @@ import {
 
 import {activateTab, COSTUMES_TAB_INDEX} from '../reducers/editor-tab';
 import {setReceivedBlocks} from '../reducers/hovered-target';
-
+import DragConstants from '../lib/drag-constants';
 import TargetPaneComponent from '../components/target-pane/target-pane.jsx';
 import spriteLibraryContent from '../lib/libraries/sprites.json';
 import {handleFileUpload, spriteUpload} from '../lib/file-uploader.js';
@@ -27,6 +27,7 @@ class TargetPane extends React.Component {
             'handleChangeSpriteX',
             'handleChangeSpriteY',
             'handleDeleteSprite',
+            'handleDrop',
             'handleDuplicateSprite',
             'handleNewSprite',
             'handleSelectSprite',
@@ -106,6 +107,25 @@ class TargetPane extends React.Component {
             this.props.onReceivedBlocks(true);
         }
     }
+    handleDrop (dragInfo) {
+        const {sprite: targetId} = this.props.hoveredTarget;
+        if (dragInfo.dragType === DragConstants.SPRITE) {
+            // Add one to both new and target index because we are not counting/moving the stage
+            this.props.vm.reorderTarget(dragInfo.index + 1, dragInfo.newIndex + 1);
+        } else if (targetId) {
+            // Something is being dragged over one of the sprite tiles or the backdrop.
+            // Dropping assets like sounds and costumes duplicate the asset on the
+            // hovered target. Shared costumes also become the current costume on that target.
+            // However, dropping does not switch the editing target or activate that editor tab.
+            // This is based on 2.0 behavior, but seems like it keeps confusing switching to a minimum.
+            // it allows the user to share multiple things without switching back and forth.
+            if (dragInfo.dragType === DragConstants.COSTUME) {
+                this.props.vm.shareCostumeToTarget(dragInfo.index, targetId);
+            } else if (targetId && dragInfo.dragType === DragConstants.SOUND) {
+                this.props.vm.shareSoundToTarget(dragInfo.index, targetId);
+            }
+        }
+    }
     render () {
         const {
             onActivateTab, // eslint-disable-line no-unused-vars
@@ -123,6 +143,7 @@ class TargetPane extends React.Component {
                 onChangeSpriteX={this.handleChangeSpriteX}
                 onChangeSpriteY={this.handleChangeSpriteY}
                 onDeleteSprite={this.handleDeleteSprite}
+                onDrop={this.handleDrop}
                 onDuplicateSprite={this.handleDuplicateSprite}
                 onFileUploadClick={this.handleFileUploadClick}
                 onPaintSpriteClick={this.handlePaintSpriteClick}
@@ -144,10 +165,10 @@ TargetPane.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    editingTarget: state.targets.editingTarget,
-    hoveredTarget: state.hoveredTarget,
-    sprites: Object.keys(state.targets.sprites).reduce((sprites, k) => {
-        let {direction, size, x, y, ...sprite} = state.targets.sprites[k];
+    editingTarget: state.scratchGui.targets.editingTarget,
+    hoveredTarget: state.scratchGui.hoveredTarget,
+    sprites: Object.keys(state.scratchGui.targets.sprites).reduce((sprites, k) => {
+        let {direction, size, x, y, ...sprite} = state.scratchGui.targets.sprites[k];
         if (typeof direction !== 'undefined') direction = Math.round(direction);
         if (typeof x !== 'undefined') x = Math.round(x);
         if (typeof y !== 'undefined') y = Math.round(y);
@@ -155,9 +176,9 @@ const mapStateToProps = state => ({
         sprites[k] = {...sprite, direction, size, x, y};
         return sprites;
     }, {}),
-    stage: state.targets.stage,
-    raiseSprites: state.blockDrag,
-    spriteLibraryVisible: state.modals.spriteLibrary
+    stage: state.scratchGui.targets.stage,
+    raiseSprites: state.scratchGui.blockDrag,
+    spriteLibraryVisible: state.scratchGui.modals.spriteLibrary
 });
 const mapDispatchToProps = dispatch => ({
     onNewSpriteClick: e => {

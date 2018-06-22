@@ -6,32 +6,40 @@ import microbitImage from './microbit.png';
 import wedoImage from './wedo.png';
 import ev3Image from './ev3.png';
 import boostImage from './boost.png';
+import translateImage from './translate.png';
 
 export default [
     {
         name: 'Music',
-        extensionURL: 'music',
+        extensionId: 'music',
         iconURL: musicImage,
         description: 'Play instruments and drums.',
         featured: true
     },
     {
         name: 'Pen',
-        extensionURL: 'pen',
+        extensionId: 'pen',
         iconURL: penImage,
         description: 'Draw with your sprites.',
         featured: true
     },
     {
+        name: 'Google Translate',
+        extensionId: 'translate',
+        iconURL: translateImage,
+        description: 'Translate text into many languages.',
+        featured: true
+    },
+    {
         name: 'Video Motion',
-        extensionURL: 'videoSensing',
+        extensionId: 'videoSensing',
         iconURL: videoImage,
         description: 'Detect motion with the camera.',
         featured: true
     },
     {
         name: 'Speech Recognition',
-        extensionURL: '',
+        extensionId: 'speech',
         iconURL: speechImage,
         description: 'Talk to your projects.',
         featured: true,
@@ -39,7 +47,7 @@ export default [
     },
     {
         name: 'Micro:bit',
-        extensionURL: '',
+        extensionId: 'microbit',
         iconURL: microbitImage,
         description: 'Connect your projects with the physical world.',
         featured: true,
@@ -47,7 +55,7 @@ export default [
     },
     {
         name: 'LEGO WeDo 2.0',
-        extensionURL: '',
+        extensionId: 'wedo2',
         iconURL: wedoImage,
         description: 'Build with motors and sensors.',
         featured: true,
@@ -55,7 +63,7 @@ export default [
     },
     {
         name: 'LEGO MINDSTORMS EV3',
-        extensionURL: '',
+        extensionId: 'ev3',
         iconURL: ev3Image,
         description: 'Build interactive robots and more.',
         featured: true,
@@ -63,7 +71,7 @@ export default [
     },
     {
         name: 'LEGO Boost',
-        extensionURL: '',
+        extensionId: 'boost',
         iconURL: boostImage,
         description: 'Build with motors and sensors.',
         featured: true,

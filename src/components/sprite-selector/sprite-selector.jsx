@@ -64,6 +64,7 @@ const SpriteSelectorComponent = function (props) {
         spriteFileInput,
         sprites,
         stageSize,
+        devMode,
         ...componentProps
     } = props;
     let selectedSprite = sprites[selectedId];
@@ -72,6 +73,11 @@ const SpriteSelectorComponent = function (props) {
         selectedSprite = {};
         spriteInfoDisabled = true;
     }
+
+    if (selectedSprite.rlbotType && !devMode) {
+        spriteInfoDisabled = true;
+    }
+
     return (
         <Box
             className={styles.spriteSelector}
@@ -106,6 +112,7 @@ const SpriteSelectorComponent = function (props) {
                     onDrop={onDrop}
                     onDuplicateSprite={onDuplicateSprite}
                     onSelectSprite={onSelectSprite}
+                    devMode={devMode}
                 />
             </Box>
             <ActionMenu

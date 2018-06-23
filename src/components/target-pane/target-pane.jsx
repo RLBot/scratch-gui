@@ -42,6 +42,7 @@ const TargetPane = ({
     stageSize,
     sprites,
     vm,
+    devMode,
     ...componentProps
 }) => (
     <div
@@ -72,6 +73,7 @@ const TargetPane = ({
             onSelectSprite={onSelectSprite}
             onSpriteUpload={onSpriteUpload}
             onSurpriseSpriteClick={onSurpriseSpriteClick}
+            devMode={devMode}
         />
         <div className={styles.stageSelectorWrapper}>
             {stage.id && <StageSelector
@@ -146,7 +148,8 @@ TargetPane.propTypes = {
     sprites: PropTypes.objectOf(spriteShape),
     stage: spriteShape,
     stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
-    vm: PropTypes.instanceOf(VM)
+    vm: PropTypes.instanceOf(VM),
+    devMode: PropTypes.bool
 };
 
 export default TargetPane;

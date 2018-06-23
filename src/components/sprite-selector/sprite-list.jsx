@@ -26,7 +26,8 @@ const SpriteList = function (props) {
         ordering,
         raised,
         selectedId,
-        items
+        items,
+        devMode
     } = props;
 
     const isSpriteDrag = draggingType === DragConstants.SPRITE;
@@ -55,6 +56,8 @@ const SpriteList = function (props) {
                 isRaised = isRaised || draggingType === DragConstants.COSTUME ||
                     draggingType === DragConstants.SOUND;
 
+                const lockDown = sprite.rlbotType && !devMode; // Lock down rlbot sprites so things are hard to break.
+
                 return (
                     <SortableAsset
                         className={classNames(styles.itemWrapper, {
@@ -77,8 +80,8 @@ const SpriteList = function (props) {
                             name={sprite.name}
                             selected={sprite.id === selectedId}
                             onClick={onSelectSprite}
-                            onDeleteButtonClick={onDeleteSprite}
-                            onDuplicateButtonClick={onDuplicateSprite}
+                            onDeleteButtonClick={lockDown ? null : onDeleteSprite} 
+                            onDuplicateButtonClick={lockDown ? null : onDuplicateSprite}
                         />
                     </SortableAsset>
                 );

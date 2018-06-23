@@ -97,6 +97,9 @@ const GUIComponent = props => {
         isRendererSupported = Renderer.isSupported();
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const devMode = urlParams.get('devMode') === '1';
+
     return (<MediaQuery minWidth={layout.fullSizeMinWidth}>{isFullSize => {
         const stageSize = resolveStageSize(stageSizeMode, isFullSize);
 
@@ -250,6 +253,7 @@ const GUIComponent = props => {
                                 <TargetPane
                                     stageSize={stageSize}
                                     vm={vm}
+                                    devMode={devMode}
                                 />
                             </Box>
                         </Box>

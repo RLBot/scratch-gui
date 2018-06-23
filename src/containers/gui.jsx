@@ -123,7 +123,7 @@ const mapStateToProps = state => ({
     importInfoVisible: state.scratchGui.modals.importInfo,
     isPlayerOnly: state.scratchGui.mode.isPlayerOnly,
     loadingStateVisible: state.scratchGui.modals.loadingProject,
-    previewInfoVisible: state.scratchGui.modals.previewInfo,
+    previewInfoVisible: false, // Turn off previewInfo for rlbot
     targetIsStage: (
         state.scratchGui.targets.stage &&
         state.scratchGui.targets.stage.id === state.scratchGui.targets.editingTarget

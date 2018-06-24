@@ -54,6 +54,7 @@ class Blocks extends React.Component {
             'handleBlocksInfoUpdate',
             'onTargetsUpdate',
             'onControllerUpdate',
+            'onRlbotFilterUpdate',
             'onVisualReport',
             'onWorkspaceUpdate',
             'onWorkspaceMetricsChange',
@@ -98,6 +99,7 @@ class Blocks extends React.Component {
     shouldComponentUpdate (nextProps, nextState) {
         return (
             nextState.controller ||
+            nextState.rlbotFiltered !== undefined ||
             this.state.prompt !== nextState.prompt ||
             this.props.isVisible !== nextProps.isVisible ||
             this.props.toolboxXML !== nextProps.toolboxXML ||
@@ -200,6 +202,7 @@ class Blocks extends React.Component {
         this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
         this.props.vm.runtime.rlbotManager.addListener('controllerUpdate', this.onControllerUpdate);
+        this.props.vm.runtime.rlbotManager.addListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
     }
     detachVM () {
         this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -212,6 +215,7 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.removeListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
         this.props.vm.runtime.rlbotManager.removeListener('controllerUpdate', this.onControllerUpdate);
+        this.props.vm.runtime.rlbotManager.removeListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
     }
 
     updateToolboxBlockValue (id, value) {
@@ -238,8 +242,18 @@ class Blocks extends React.Component {
     onControllerUpdate (update) {
         if (this.props.vm.editingTarget) {
             const target = this.props.vm.editingTarget;
-            if (target.rlbotType === 'car' && update.playerIndex === target.rlbotIndex) {
+            if (target.rlbotType === 'car' && update.playerIndex === target.rlbotIndex && target.rlbotCommunication) {
                 this.setState({controller: update.controller});
+            }
+        }
+    }
+
+    onRlbotFilterUpdate (update) {
+        if (this.props.vm.editingTarget) {
+            const editingTarget = this.props.vm.editingTarget;
+            if (editingTarget === update.target) {
+                this.setState({rlbotFiltered: !editingTarget.rlbotCommunication});
+                this.updateToolboxForTarget(editingTarget);
             }
         }
     }
@@ -272,6 +286,14 @@ class Blocks extends React.Component {
     onVisualReport (data) {
         this.workspace.reportValue(data.id, data.value);
     }
+    updateToolboxForTarget (target) {
+        const dynamicBlocksXML = this.props.vm.runtime.getBlocksXML();
+        const toolboxXML = makeToolboxXML(
+            target.isStage,
+            target,
+            dynamicBlocksXML);
+        this.props.updateToolboxState(toolboxXML);
+    }
     onWorkspaceUpdate (data) {
 
         this.setState({controller: null});
@@ -279,14 +301,8 @@ class Blocks extends React.Component {
         // When we change sprites, update the toolbox to have the new sprite's blocks
         if (this.props.vm.editingTarget) {
             const target = this.props.vm.editingTarget;
-            const dynamicBlocksXML = this.props.vm.runtime.getBlocksXML();
-            const toolboxXML = makeToolboxXML(
-                target.isStage,
-                target.rlbotType === 'car',
-                target.rlbotType === 'ball',
-                target.id,
-                dynamicBlocksXML);
-            this.props.updateToolboxState(toolboxXML);
+            this.updateToolboxForTarget(target);
+            this.setState({rlbotFiltered: !target.rlbotCommunication});
         }
 
         if (this.props.vm.editingTarget && !this.state.workspaceMetrics[this.props.vm.editingTarget.id]) {
@@ -409,7 +425,11 @@ class Blocks extends React.Component {
                         onRequestClose={this.handleCustomProceduresClose}
                     />
                 ) : null}
-                {this.state.controller ? (
+                {this.state.rlbotFiltered ? (
+                    <div className={classNames(styles.controllerContainer, styles.filterWarning)}>
+                        Warning: this player is currently disabled, so motion blocks will have no effect!
+                    </div>
+                ) : this.state.controller ? (
                     <div className={classNames(styles.controllerContainer)}>
                         <Controller cs={this.state.controller} />
                     </div>

@@ -165,6 +165,11 @@ class MenuBar extends React.Component {
         self.hostUpdater = debounce((evt) => { props.vm.runtime.rlbotManager.setHost(evt.target.value); }, 500);
     }
 
+    filterPlayer(index, value) {
+        this.props.vm.runtime.rlbotManager.filterPlayer(index, value);
+        this.props.vm.emitTargetsUpdate();
+    }
+
     componentDidMount() {
         let self = this;
         this.interval = setInterval(() => {
@@ -441,22 +446,22 @@ class MenuBar extends React.Component {
             <label className={classNames(styles.playerCheck)}>
                 <span>p1</span>
                 <input type="checkbox" defaultChecked={self.state.p1}
-                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(0, evt.target.checked) } />
+                onChange={ (evt) => self.filterPlayer(0, evt.target.checked) } />
             </label>
             <label className={classNames(styles.playerCheck)}>
                 <span>p2</span>
                 <input type="checkbox" defaultChecked={self.state.p2}
-                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(1, evt.target.checked) } />
+                onChange={ (evt) => self.filterPlayer(1, evt.target.checked) } />
             </label>
             <label className={classNames(styles.playerCheck)}>
                 <span>p3</span>
                 <input type="checkbox" defaultChecked={self.state.p3}
-                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(2, evt.target.checked) } />
+                onChange={ (evt) => self.filterPlayer(2, evt.target.checked) } />
             </label>
             <label className={classNames(styles.playerCheck)}>
                 <span>p4</span>
                 <input type="checkbox" defaultChecked={self.state.p4}
-                onChange={ (evt) => props.vm.runtime.rlbotManager.filterPlayer(3, evt.target.checked) } />
+                onChange={ (evt) => self.filterPlayer(3, evt.target.checked) } />
             </label>
         </div>
         <div className={styles.accountInfoWrapper}>

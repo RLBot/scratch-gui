@@ -2,14 +2,18 @@ const categorySeparator = '<sep gap="36"/>';
 
 const blockSeparator = '<sep gap="36"/>'; // At default scale, about 28px
 
-const motion = function (isStage, targetId, isCar, isBall) {
+const motion = function (isStage, target) {
+    const targetId = target ? target.id : null;
+
     return `
     <category name="Motion" id="motion" colour="#4C97FF" secondaryColour="#3373CC">
         ${isStage ? `
         <label text="Stage selected: no motion blocks"></label>
-        ` : isBall ? `
+        ` : target.rlbotType === 'ball' ? `
         <label text="Ball selected: no motion blocks"></label>
-        ` : isCar ? `
+        ` : target.rlbotType === 'car' && !target.rlbotCommunication ? `
+        <label text="Car motion is disabled."></label>
+        ` : target.rlbotType === 'car' ? `
         <block type="motion_setthrottle">
             <value name="NUM">
                 <shadow type="math_number">
@@ -767,16 +771,16 @@ const xmlClose = '</xml>';
 
 /**
  * @param {!boolean} isStage - Whether the toolbox is for a stage-type target.
- * @param {?string} targetId - The current editing target
- * @param {string?} categoriesXML - null for default toolbox, or an XML string with <category> elements.
+ * @param target - the current editing target.
  * @returns {string} - a ScratchBlocks-style XML document for the contents of the toolbox.
  */
-const makeToolboxXML = function (isStage, isCar, isBall, targetId, categoriesXML) {
+const makeToolboxXML = function (isStage, target, categoriesXML) {
     const gap = [categorySeparator];
+    const targetId = target ? target.id : null;
 
     const everything = [
         xmlOpen,
-        motion(isStage, targetId, isCar, isBall), gap,
+        motion(isStage, target), gap,
         looks(isStage, targetId), gap,
         sound(isStage, targetId), gap,
         events(isStage, targetId), gap,

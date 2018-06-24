@@ -1,5 +1,15 @@
 .controller-container {
     position: absolute;
     bottom: 20px;
-    right: 100px;
+    right: 75px;
+}
+
+.filter-warning {
+    color: #CC3333;
+    background-color: rgb(247, 238, 185);
+    font-weight: bold;
+    width: 300px;
+    border-radius: 5px;
+    padding: 5px;
+    border: solid gray;
 }

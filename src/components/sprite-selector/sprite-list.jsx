@@ -57,6 +57,7 @@ const SpriteList = function (props) {
                     draggingType === DragConstants.SOUND;
 
                 const lockDown = sprite.rlbotType && !devMode; // Lock down rlbot sprites so things are hard to break.
+                const uncontrolled = sprite.rlbotType === 'car' && !sprite.rlbotCommunication;
 
                 return (
                     <SortableAsset
@@ -71,7 +72,8 @@ const SpriteList = function (props) {
                             assetId={sprite.costume && sprite.costume.assetId}
                             className={classNames(styles.sprite, {
                                 [styles.raised]: isRaised,
-                                [styles.receivedBlocks]: receivedBlocks
+                                [styles.receivedBlocks]: receivedBlocks,
+                                [styles.rlbotDisabled]: uncontrolled
                             })}
                             dragType={DragConstants.SPRITE}
                             id={sprite.id}

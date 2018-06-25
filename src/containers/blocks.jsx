@@ -302,7 +302,7 @@ class Blocks extends React.Component {
         if (this.props.vm.editingTarget) {
             const target = this.props.vm.editingTarget;
             this.updateToolboxForTarget(target);
-            this.setState({rlbotFiltered: !target.rlbotCommunication});
+            this.setState({rlbotFiltered: target.rlbotType === 'car' && !target.rlbotCommunication});
         }
 
         if (this.props.vm.editingTarget && !this.state.workspaceMetrics[this.props.vm.editingTarget.id]) {

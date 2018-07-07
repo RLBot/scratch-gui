@@ -20,6 +20,7 @@ const SpriteList = function (props) {
         hoveredTarget,
         onDeleteSprite,
         onDuplicateSprite,
+        onExportSprite,
         onSelectSprite,
         onAddSortable,
         onRemoveSortable,
@@ -61,7 +62,7 @@ const SpriteList = function (props) {
 
                 return (
                     <SortableAsset
-                        className={classNames(styles.itemWrapper, {
+                        className={classNames(styles.spriteWrapper, {
                             [styles.placeholder]: isSpriteDrag && index === draggingIndex})}
                         index={isSpriteDrag ? ordering.indexOf(index) : index}
                         key={sprite.name}
@@ -75,6 +76,7 @@ const SpriteList = function (props) {
                                 [styles.receivedBlocks]: receivedBlocks,
                                 [styles.rlbotDisabled]: uncontrolled
                             })}
+                            dragPayload={sprite}
                             dragType={DragConstants.SPRITE}
                             id={sprite.id}
                             index={index}
@@ -82,8 +84,9 @@ const SpriteList = function (props) {
                             name={sprite.name}
                             selected={sprite.id === selectedId}
                             onClick={onSelectSprite}
-                            onDeleteButtonClick={lockDown ? null : onDeleteSprite} 
+                            onDeleteButtonClick={lockDown ? null : onDeleteSprite}
                             onDuplicateButtonClick={lockDown ? null : onDuplicateSprite}
+                            onExportButtonClick={onExportSprite}
                         />
                     </SortableAsset>
                 );
@@ -115,6 +118,7 @@ SpriteList.propTypes = {
     onAddSortable: PropTypes.func,
     onDeleteSprite: PropTypes.func,
     onDuplicateSprite: PropTypes.func,
+    onExportSprite: PropTypes.func,
     onRemoveSortable: PropTypes.func,
     onSelectSprite: PropTypes.func,
     ordering: PropTypes.arrayOf(PropTypes.number),

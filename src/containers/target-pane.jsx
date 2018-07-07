@@ -29,6 +29,7 @@ class TargetPane extends React.Component {
             'handleDeleteSprite',
             'handleDrop',
             'handleDuplicateSprite',
+            'handleExportSprite',
             'handleNewSprite',
             'handleSelectSprite',
             'handleSurpriseSpriteClick',
@@ -67,6 +68,28 @@ class TargetPane extends React.Component {
     }
     handleDuplicateSprite (id) {
         this.props.vm.duplicateSprite(id);
+    }
+    handleExportSprite (id) {
+        const spriteName = this.props.vm.runtime.getTargetById(id).getName();
+        const saveLink = document.createElement('a');
+        document.body.appendChild(saveLink);
+
+        this.props.vm.exportSprite(id).then(content => {
+            const filename = `${spriteName}.sprite3`;
+
+            // Use special ms version if available to get it working on Edge.
+            if (navigator.msSaveOrOpenBlob) {
+                navigator.msSaveOrOpenBlob(content, filename);
+                return;
+            }
+
+            const url = window.URL.createObjectURL(content);
+            saveLink.href = url;
+            saveLink.download = filename;
+            saveLink.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(saveLink);
+        });
     }
     handleSelectSprite (id) {
         this.props.vm.setEditingTarget(id);
@@ -112,6 +135,12 @@ class TargetPane extends React.Component {
         if (dragInfo.dragType === DragConstants.SPRITE) {
             // Add one to both new and target index because we are not counting/moving the stage
             this.props.vm.reorderTarget(dragInfo.index + 1, dragInfo.newIndex + 1);
+        } else if (dragInfo.dragType === DragConstants.BACKPACK_SPRITE) {
+            // TODO storage does not have a way of loading zips right now, and may never need it.
+            // So for now just grab the zip manually.
+            fetch(dragInfo.payload.bodyUrl)
+                .then(response => response.arrayBuffer())
+                .then(sprite3Zip => this.props.vm.addSprite(sprite3Zip));
         } else if (targetId) {
             // Something is being dragged over one of the sprite tiles or the backdrop.
             // Dropping assets like sounds and costumes duplicate the asset on the
@@ -145,6 +174,7 @@ class TargetPane extends React.Component {
                 onDeleteSprite={this.handleDeleteSprite}
                 onDrop={this.handleDrop}
                 onDuplicateSprite={this.handleDuplicateSprite}
+                onExportSprite={this.handleExportSprite}
                 onFileUploadClick={this.handleFileUploadClick}
                 onPaintSpriteClick={this.handlePaintSpriteClick}
                 onSelectSprite={this.handleSelectSprite}

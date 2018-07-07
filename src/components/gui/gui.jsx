@@ -72,6 +72,7 @@ const GUIComponent = props => {
         onActivateTab,
         onRequestCloseBackdropLibrary,
         onRequestCloseCostumeLibrary,
+        onSeeCommunity,
         previewInfoVisible,
         targetIsStage,
         soundsTabVisible,
@@ -144,7 +145,11 @@ const GUIComponent = props => {
                         onRequestClose={onRequestCloseBackdropLibrary}
                     />
                 ) : null}
-                <MenuBar vm={vm} enableCommunity={enableCommunity} />
+                <MenuBar
+                    vm={vm}
+                    enableCommunity={enableCommunity}
+                    onSeeCommunity={onSeeCommunity}
+                />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>
                         <Box className={styles.editorWrapper}>
@@ -289,6 +294,7 @@ GUIComponent.propTypes = {
     onExtensionButtonClick: PropTypes.func,
     onRequestCloseBackdropLibrary: PropTypes.func,
     onRequestCloseCostumeLibrary: PropTypes.func,
+    onSeeCommunity: PropTypes.func,
     onTabSelect: PropTypes.func,
     previewInfoVisible: PropTypes.bool,
     soundsTabVisible: PropTypes.bool,

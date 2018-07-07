@@ -30,6 +30,7 @@ import fileUploadIcon from '../components/action-menu/icon--file-upload.svg';
 import paintIcon from '../components/action-menu/icon--paint.svg';
 import cameraIcon from '../components/action-menu/icon--camera.svg';
 import surpriseIcon from '../components/action-menu/icon--surprise.svg';
+import searchIcon from '../components/action-menu/icon--search.svg';
 
 import costumeLibraryContent from '../lib/libraries/costumes.json';
 import backdropLibraryContent from '../lib/libraries/backdrops.json';
@@ -252,7 +253,8 @@ class CostumeTab extends React.Component {
         const costumeData = target.costumes ? target.costumes.map(costume => ({
             name: costume.name,
             assetId: costume.assetId,
-            details: costume.size ? this.formatCostumeDetails(costume.size, costume.bitmapResolution) : null
+            details: costume.size ? this.formatCostumeDetails(costume.size, costume.bitmapResolution) : null,
+            dragPayload: costume
         })) : [];
         return (
             <AssetPanel
@@ -284,6 +286,11 @@ class CostumeTab extends React.Component {
                         title: intl.formatMessage(messages.addBlankCostumeMsg),
                         img: paintIcon,
                         onClick: this.handleNewBlankCostume
+                    },
+                    {
+                        title: intl.formatMessage(addLibraryMessage),
+                        img: searchIcon,
+                        onClick: addLibraryFunc
                     }
                 ]}
                 dragType={DragConstants.COSTUME}

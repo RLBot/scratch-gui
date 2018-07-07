@@ -282,7 +282,7 @@ class MenuBar extends React.Component {
                                     {...loadProps}
                                 >
                                     <FormattedMessage
-                                        defaultMessage="Upload from your computer"
+                                        defaultMessage="Load from your computer"
                                         description="Menu bar item for uploading a project from your computer"
                                         id="gui.menuBar.uploadFromComputer"
                                     />
@@ -295,8 +295,8 @@ class MenuBar extends React.Component {
                                     {...saveProps}
                                 >
                                     <FormattedMessage
-                                        defaultMessage="Download to your computer"
-                                        description="Menu bar item for downloading a project"
+                                        defaultMessage="Save to your computer"
+                                        description="Menu bar item for downloading a project to your computer"
                                         id="gui.menuBar.downloadToComputer"
                                     />
                                 </MenuItem>

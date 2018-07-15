@@ -53,7 +53,6 @@ class Blocks extends React.Component {
             'handleExtensionAdded',
             'handleBlocksInfoUpdate',
             'onTargetsUpdate',
-            'onControllerUpdate',
             'onRlbotFilterUpdate',
             'onVisualReport',
             'onWorkspaceUpdate',
@@ -99,7 +98,6 @@ class Blocks extends React.Component {
     }
     shouldComponentUpdate (nextProps, nextState) {
         return (
-            nextState.controller ||
             nextState.rlbotFiltered !== undefined ||
             this.state.prompt !== nextState.prompt ||
             this.props.isVisible !== nextProps.isVisible ||
@@ -212,7 +210,6 @@ class Blocks extends React.Component {
         this.props.vm.addListener('targetsUpdate', this.onTargetsUpdate);
         this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
-        this.props.vm.runtime.rlbotManager.addListener('controllerUpdate', this.onControllerUpdate);
         this.props.vm.runtime.rlbotManager.addListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
     }
     detachVM () {
@@ -225,7 +222,6 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('targetsUpdate', this.onTargetsUpdate);
         this.props.vm.removeListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.removeListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
-        this.props.vm.runtime.rlbotManager.removeListener('controllerUpdate', this.onControllerUpdate);
         this.props.vm.runtime.rlbotManager.removeListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
     }
 
@@ -247,15 +243,6 @@ class Blocks extends React.Component {
                 this.updateToolboxBlockValue(`${prefix}x`, Math.round(this.props.vm.editingTarget.x).toString());
                 this.updateToolboxBlockValue(`${prefix}y`, Math.round(this.props.vm.editingTarget.y).toString());
             });
-        }
-    }
-
-    onControllerUpdate (update) {
-        if (this.props.vm.editingTarget) {
-            const target = this.props.vm.editingTarget;
-            if (target.rlbotType === 'car' && update.playerIndex === target.rlbotIndex && target.rlbotCommunication) {
-                this.setState({controller: update.controller});
-            }
         }
     }
 
@@ -440,11 +427,11 @@ class Blocks extends React.Component {
                     <div className={classNames(styles.controllerContainer, styles.filterWarning)}>
                         Warning: this player is currently disabled, so motion blocks will have no effect!
                     </div>
-                ) : this.state.controller ? (
+                ) : (
                     <div className={classNames(styles.controllerContainer)}>
-                        <Controller cs={this.state.controller} />
+                        <Controller rlbotManager={this.props.vm.runtime.rlbotManager} target={this.props.vm.editingTarget} />
                     </div>
-                ) : null}
+                )}
             </div>
         );
     }

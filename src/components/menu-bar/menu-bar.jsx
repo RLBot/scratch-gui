@@ -174,7 +174,7 @@ class MenuBar extends React.Component {
         let self = this;
         this.interval = setInterval(() => {
             self.setState({isConnected: self.props.vm.runtime.rlbotManager.hasConnection});
-        }, 200);
+        }, 2000);
     }
 
     componentWillUnmount() {

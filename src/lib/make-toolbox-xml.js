@@ -58,17 +58,17 @@ const motion = function (isStage, target) {
         </block>
         <block type="motion_setjump">
             <value name="BIT">
-                <shadow type="logic_boolean"></shadow>
+                <shadow type="math_boolean"></shadow>
             </value>
         </block>
         <block type="motion_setboost">
             <value name="BIT">
-                <shadow type="logic_boolean"></shadow>
+                <shadow type="math_boolean"></shadow>
             </value>
         </block>
         <block type="motion_sethandbrake">
             <value name="BIT">
-                <shadow type="logic_boolean"></shadow>
+                <shadow type="math_boolean"></shadow>
             </value>
         </block>
         ${blockSeparator}
@@ -474,6 +474,7 @@ const sensing = function (isStage) {
             <block type="sensing_rlbot_location"/>
             <block type="sensing_rlbot_velocity"/>
             <block type="sensing_rlbot_degreesto"/>
+            <block type="sensing_rlbot_defending_side"/>
             <block type="sensing_touchingobject">
                 <value name="TOUCHINGOBJECTMENU">
                     <shadow type="sensing_touchingobjectmenu"/>

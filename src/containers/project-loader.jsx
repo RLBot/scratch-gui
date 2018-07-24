@@ -42,7 +42,10 @@ class ProjectLoader extends React.Component {
     }
     handleChange (e) {
         // Remove the hash if any (without triggering a hash change event or a reload)
-        history.replaceState({}, document.title, '.');
+        // history.replaceState({}, document.title, '.');
+        // Commented out the hash nuking because rlbot uses it for indicating dev mode, host name, etc,
+        // and we want to persist that across a project upload. I don't know why they're nuking the hash,
+        // but I don't see any problems from commenting it out so far.
         const reader = new FileReader();
         const thisFileInput = e.target;
         reader.onload = () => this.props.vm.loadProject(reader.result)

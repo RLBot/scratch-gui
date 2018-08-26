@@ -332,12 +332,12 @@ const looks = function (isStage, targetId) {
 const sound = function (isStage, targetId) {
     return `
     <category name="%{BKY_CATEGORY_SOUND}" id="sound" colour="#D65CD6" secondaryColour="#BD42BD">
-        <block id="${targetId}_sound_play" type="sound_play">
+        <block id="${targetId}_sound_playuntildone" type="sound_playuntildone">
             <value name="SOUND_MENU">
                 <shadow type="sound_sounds_menu"/>
             </value>
         </block>
-        <block id="${targetId}_sound_playuntildone" type="sound_playuntildone">
+        <block id="${targetId}_sound_play" type="sound_play">
             <value name="SOUND_MENU">
                 <shadow type="sound_sounds_menu"/>
             </value>
@@ -655,7 +655,7 @@ const operators = function () {
             </value>
             <value name="OPERAND2">
                 <shadow type="text">
-                    <field name="TEXT">100</field>
+                    <field name="TEXT">50</field>
                 </shadow>
             </value>
         </block>
@@ -667,7 +667,7 @@ const operators = function () {
             </value>
             <value name="OPERAND2">
                 <shadow type="text">
-                    <field name="TEXT">100</field>
+                    <field name="TEXT">50</field>
                 </shadow>
             </value>
         </block>
@@ -679,7 +679,7 @@ const operators = function () {
             </value>
             <value name="OPERAND2">
                 <shadow type="text">
-                    <field name="TEXT">100</field>
+                    <field name="TEXT">50</field>
                 </shadow>
             </value>
         </block>

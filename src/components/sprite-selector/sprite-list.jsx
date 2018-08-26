@@ -54,8 +54,11 @@ const SpriteList = function (props) {
                 // Note the absence of the self-sharing check: a sprite can share assets with itself.
                 // This is a quirk of 2.0, but seems worth leaving possible, it
                 // allows quick (albeit unusual) duplication of assets.
-                isRaised = isRaised || draggingType === DragConstants.COSTUME ||
-                    draggingType === DragConstants.SOUND;
+                isRaised = isRaised || [
+                    DragConstants.COSTUME,
+                    DragConstants.SOUND,
+                    DragConstants.BACKPACK_COSTUME,
+                    DragConstants.BACKPACK_SOUND].includes(draggingType);
 
                 const lockDown = sprite.rlbotType && !devMode; // Lock down rlbot sprites so things are hard to break.
                 const uncontrolled = sprite.rlbotType === 'car' && !sprite.rlbotCommunication;

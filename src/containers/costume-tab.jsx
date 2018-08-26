@@ -24,6 +24,8 @@ import {
     SOUNDS_TAB_INDEX
 } from '../reducers/editor-tab';
 
+import {setRestore} from '../reducers/restore-deletion';
+
 import addLibraryBackdropIcon from '../components/asset-panel/icon--add-backdrop-lib.svg';
 import addLibraryCostumeIcon from '../components/asset-panel/icon--add-costume-lib.svg';
 import fileUploadIcon from '../components/action-menu/icon--file-upload.svg';
@@ -135,7 +137,11 @@ class CostumeTab extends React.Component {
         this.setState({selectedCostumeIndex: costumeIndex});
     }
     handleDeleteCostume (costumeIndex) {
-        this.props.vm.deleteCostume(costumeIndex);
+        const restoreCostumeFun = this.props.vm.deleteCostume(costumeIndex);
+        this.props.dispatchUpdateRestore({
+            restoreFun: restoreCostumeFun,
+            deletedItem: 'Costume'
+        });
     }
     handleDuplicateCostume (costumeIndex) {
         this.props.vm.duplicateCostume(costumeIndex);
@@ -161,11 +167,15 @@ class CostumeTab extends React.Component {
     }
     handleSurpriseCostume () {
         const item = costumeLibraryContent[Math.floor(Math.random() * costumeLibraryContent.length)];
+        const split = item.md5.split('.');
+        const type = split.length > 1 ? split[1] : null;
+        const rotationCenterX = type === 'svg' ? item.info[0] : item.info[0] / 2;
+        const rotationCenterY = type === 'svg' ? item.info[1] : item.info[1] / 2;
         const vmCostume = {
             name: item.name,
             md5: item.md5,
-            rotationCenterX: item.info[0],
-            rotationCenterY: item.info[1],
+            rotationCenterX,
+            rotationCenterY,
             bitmapResolution: item.info.length > 2 ? item.info[2] : 1,
             skinId: null
         };
@@ -228,6 +238,7 @@ class CostumeTab extends React.Component {
     }
     render () {
         const {
+            dispatchUpdateRestore, // eslint-disable-line no-unused-vars
             intl,
             onNewCostumeFromCameraClick,
             onNewLibraryBackdropClick,
@@ -321,6 +332,7 @@ class CostumeTab extends React.Component {
 
 CostumeTab.propTypes = {
     cameraModalVisible: PropTypes.bool,
+    dispatchUpdateRestore: PropTypes.func,
     editingTarget: PropTypes.string,
     intl: intlShape,
     onActivateSoundsTab: PropTypes.func.isRequired,
@@ -368,6 +380,9 @@ const mapDispatchToProps = dispatch => ({
     },
     onRequestCloseCameraModal: () => {
         dispatch(closeCameraCapture());
+    },
+    dispatchUpdateRestore: restoreState => {
+        dispatch(setRestore(restoreState));
     }
 });
 

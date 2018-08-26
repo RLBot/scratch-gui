@@ -48,8 +48,13 @@
     height:  1.5rem;
 }
 
+.language-caret {
+    margin-bottom: .625rem;
+}
+
 .language-menu {
     display: inline-flex;
+    width: $language-selector-width;
 }
 
 .menu {
@@ -66,6 +71,7 @@
     align-self: center;
     position: relative;
     align-items: center;
+    white-space: nowrap;
     height: $menu-bar-height;
 }
 
@@ -151,9 +157,7 @@
 }
 
 .help-icon {
-    height: 2rem;
-    width: 3rem;
-    margin-top: 0.5rem;
+    margin-right: 0.35rem;
 }
 
 .account-nav-menu, .mystuff-button {
@@ -170,7 +174,6 @@
 }
 
 .dropdown-caret-icon {
-    margin-left: .5rem;
     width: 0.5rem;
     height: 0.5rem;
 }
@@ -183,4 +186,16 @@
     background-color: rgba(0, 0, 0, 0.1);
     padding-left: 3px;
     border-radius: 6px;
+}
+
+[dir="ltr"] .dropdown-caret-icon {
+    margin-left: .5rem;
+}
+
+[dir="rtl"] .dropdown-caret-icon {
+    margin-right: .5rem;
+}
+
+.disabled {
+    opacity: 0.5;
 }

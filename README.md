@@ -44,6 +44,20 @@ https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
 
 Contact me for help obtaining access.
 
+### Troubleshooting
+
+Sometimes after merging or otherwise messing around, the build will break. 
+
+Example: 
+```
+npm ERR! enoent ENOENT: no such file or directory, rename '/mnt/c/Users/Tyler/Code/scratch-gui/node_modules/.staging/scratch-vm-69531e78/node_modules/@sindresorhus/is' -> '/mnt/c/Users/Tyler/Code/scratch-gui/node_modules/.staging/@sindresorhus/is-23aa70f5'
+```
+
+Try doing `sudo npm uninstall` and `git clean -xdf` and `rm package-lock.json` and `npm install` on all the packages, in this order:
+1. scratch-blocks
+2. scratch-vm
+3. scratch-gui
+
 # scratch-gui
 #### Scratch GUI is a set of React components that comprise the interface for creating and running Scratch 3.0 projects
 

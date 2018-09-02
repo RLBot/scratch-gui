@@ -145,8 +145,10 @@ class MenuBar extends React.Component {
         bindAll(this, [
             'handleLanguageMouseUp',
             'handleRestoreOption',
+            'handleCloseFileMenuAndThen',
             'restoreOptionMessage'
         ]);
+        this.state = {projectSaveInProgress: false};
 
         let self = this;
 
@@ -199,6 +201,24 @@ class MenuBar extends React.Component {
             this.props.onRequestCloseEdit();
         };
     }
+    handleUpdateProject (updateFun) {
+        return () => {
+            this.props.onRequestCloseFile();
+            this.setState({projectSaveInProgress: true},
+                () => {
+                    updateFun().then(() => {
+                        this.setState({projectSaveInProgress: false});
+                    });
+                }
+            );
+        };
+    }
+    handleCloseFileMenuAndThen (fn) {
+        return () => {
+            this.props.onRequestCloseFile();
+            fn();
+        };
+    }
     restoreOptionMessage (deletedItem) {
         switch (deletedItem) {
         case 'Sprite':
@@ -233,17 +253,34 @@ class MenuBar extends React.Component {
         let props = this.props;
         let self = this;
 
+        const saveNowMessage = (
+            <FormattedMessage
+                defaultMessage="Save now"
+                description="Menu bar item for saving now"
+                id="gui.menuBar.saveNow"
+            />
+        );
         return (
-            <Box className={styles.menuBar}>
+            <Box
+                className={classNames(styles.menuBar, {
+                    [styles.saveInProgress]: this.state.projectSaveInProgress
+                })}
+            >
                 <div className={styles.mainMenu}>
                     <div className={styles.fileGroup}>
                         <div className={classNames(styles.menuBarItem)}>
-                            <img
-                                alt="Scratch"
-                                className={styles.scratchLogo}
-                                draggable={false}
-                                src={scratchLogo}
-                            />
+                            <a
+                                href="https://scratch.mit.edu"
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                <img
+                                    alt="Scratch"
+                                    className={styles.scratchLogo}
+                                    draggable={false}
+                                    src={scratchLogo}
+                                />
+                            </a>
                         </div>
                         <div
                             className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
@@ -291,18 +328,20 @@ class MenuBar extends React.Component {
                                     </MenuItem>
                                 </MenuItemTooltip>
                                 <MenuSection>
-                                    <MenuItemTooltip
-                                        id="save"
-                                        isRtl={this.props.isRtl}
-                                    >
-                                        <MenuItem>
-                                            <FormattedMessage
-                                                defaultMessage="Save now"
-                                                description="Menu bar item for saving now"
-                                                id="gui.menuBar.saveNow"
-                                            />
-                                        </MenuItem>
-                                    </MenuItemTooltip>
+                                    <ProjectSaver>{(saveProject, updateProject) => (
+                                        this.props.canUpdateProject ? (
+                                            <MenuItem onClick={this.handleUpdateProject(updateProject)}>
+                                                {saveNowMessage}
+                                            </MenuItem>
+                                        ) : (
+                                            <MenuItemTooltip
+                                                id="save"
+                                                isRtl={this.props.isRtl}
+                                            >
+                                                <MenuItem>{saveNowMessage}</MenuItem>
+                                            </MenuItemTooltip>
+                                        )
+                                    )}</ProjectSaver>
                                     <MenuItemTooltip
                                         id="copy"
                                         isRtl={this.props.isRtl}
@@ -329,10 +368,9 @@ class MenuBar extends React.Component {
                                             {renderFileInput()}
                                         </MenuItem>
                                     )}</ProjectLoader>
-                                    <ProjectSaver>{(saveProject, saveProps) => (
+                                    <ProjectSaver>{saveProject => (
                                         <MenuItem
-                                            onClick={saveProject}
-                                            {...saveProps}
+                                            onClick={this.handleCloseFileMenuAndThen(saveProject)}
                                         >
                                             <FormattedMessage
                                                 defaultMessage="Save to your computer"
@@ -561,6 +599,7 @@ class MenuBar extends React.Component {
 }
 
 MenuBar.propTypes = {
+    canUpdateProject: PropTypes.bool,
     editMenuOpen: PropTypes.bool,
     enableCommunity: PropTypes.bool,
     fileMenuOpen: PropTypes.bool,
@@ -579,6 +618,7 @@ MenuBar.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    canUpdateProject: typeof (state.session && state.session.session && state.session.session.user) !== 'undefined',
     fileMenuOpen: fileMenuOpen(state),
     editMenuOpen: editMenuOpen(state),
     isRtl: state.locales.isRtl,

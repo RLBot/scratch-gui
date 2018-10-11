@@ -63,7 +63,8 @@ class Blocks extends React.Component {
             'onWorkspaceUpdate',
             'onWorkspaceMetricsChange',
             'setBlocks',
-            'setLocale'
+            'setLocale',
+            'handleStopAll'
         ]);
         this.ScratchBlocks.prompt = this.handlePromptStart;
         this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
@@ -228,6 +229,7 @@ class Blocks extends React.Component {
         this.props.vm.runtime.rlbotManager.addListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
         this.props.vm.addListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
         this.props.vm.addListener('PERIPHERAL_ERROR', this.handleStatusButtonUpdate);
+        this.props.vm.runtime.addListener('PROJECT_STOP_ALL', this.handleStopAll);
     }
     detachVM () {
         this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -242,6 +244,7 @@ class Blocks extends React.Component {
         this.props.vm.runtime.rlbotManager.removeListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
         this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
         this.props.vm.removeListener('PERIPHERAL_ERROR', this.handleStatusButtonUpdate);
+        this.props.vm.runtime.removeListener('PROJECT_STOP_ALL', this.handleStopAll);
     }
 
     updateToolboxBlockValue (id, value) {
@@ -344,6 +347,10 @@ class Blocks extends React.Component {
         // fresh workspace and we don't want any changes made to another sprites
         // workspace to be 'undone' here.
         this.workspace.clearUndo();
+    }
+    handleStopAll() {
+        // Refresh everything when the stop button is clicked.
+        this.setState({});
     }
     handleExtensionAdded (blocksInfo) {
         // select JSON from each block info object then reject the pseudo-blocks which don't have JSON, like separators

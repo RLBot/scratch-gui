@@ -23,35 +23,35 @@ const motion = function (isStage, target) {
         ` : target.rlbotType === 'car' ? `
         <block type="motion_setthrottle">
             <value name="NUM">
-                <shadow type="math_number">
+                <shadow type="math_number_slider">
                     <field name="NUM">1</field>
                 </shadow>
             </value>
         </block>
         <block type="motion_setsteer">
             <value name="NUM">
-                <shadow type="math_number">
+                <shadow type="math_number_slider">
                     <field name="NUM">0</field>
                 </shadow>
             </value>
         </block>
         <block type="motion_setpitch">
             <value name="NUM">
-                <shadow type="math_number">
+                <shadow type="math_number_slider">
                     <field name="NUM">0</field>
                 </shadow>
             </value>
         </block>
         <block type="motion_setyaw">
             <value name="NUM">
-                <shadow type="math_number">
+                <shadow type="math_number_slider">
                     <field name="NUM">0</field>
                 </shadow>
             </value>
         </block>
         <block type="motion_setroll">
             <value name="NUM">
-                <shadow type="math_number">
+                <shadow type="math_number_slider">
                     <field name="NUM">0</field>
                 </shadow>
             </value>

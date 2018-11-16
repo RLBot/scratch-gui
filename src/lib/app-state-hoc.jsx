@@ -4,57 +4,98 @@ import {Provider} from 'react-redux';
 import {createStore, combineReducers, compose} from 'redux';
 import ConnectedIntlProvider from './connected-intl-provider.jsx';
 
-import guiReducer, {guiInitialState, guiMiddleware, initFullScreen, initPlayer} from '../reducers/gui';
 import localesReducer, {initLocale, localesInitialState} from '../reducers/locales';
 
 import {setPlayer, setFullScreen} from '../reducers/mode.js';
 
 import locales from 'scratch-l10n';
 import {detectLocale} from './detect-locale';
-
-import {ScratchPaintReducer} from 'scratch-paint';
+import {detectTutorialId} from './tutorial-from-url';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const enhancer = composeEnhancers(guiMiddleware);
 
 /*
  * Higher Order Component to provide redux state. If an `intl` prop is provided
  * it will override the internal `intl` redux state
  * @param {React.Component} WrappedComponent - component to provide state for
+ * @param {boolean} localesOnly - only provide the locale state, not everything
+ *                      required by the GUI. Used to exclude excess state when
+                        only rendering modals, not the GUI.
  * @returns {React.Component} component with redux and intl state provided
  */
-const AppStateHOC = function (WrappedComponent) {
+const AppStateHOC = function (WrappedComponent, localesOnly) {
     class AppStateWrapper extends React.Component {
         constructor (props) {
             super(props);
-            let initializedGui = guiInitialState;
-            if (props.isFullScreen) {
-                initializedGui = initFullScreen(initializedGui);
-            }
-            if (props.isPlayerOnly) {
-                initializedGui = initPlayer(initializedGui);
-            }
+            let initialState = {};
+            let reducers = {};
+            let enhancer;
+
+            this.state = {
+                tutorial: false
+            };
 
             let initializedLocales = localesInitialState;
             const locale = detectLocale(Object.keys(locales));
             if (locale !== 'en') {
                 initializedLocales = initLocale(initializedLocales, locale);
             }
+            if (localesOnly) {
+                // Used for instantiating minimal state for the unsupported
+                // browser modal
+                reducers = {locales: localesReducer};
+                initialState = {locales: initializedLocales};
+                enhancer = composeEnhancers();
+            } else {
+                // You are right, this is gross. But it's necessary to avoid
+                // importing unneeded code that will crash unsupported browsers.
+                const guiRedux = require('../reducers/gui');
+                const guiReducer = guiRedux.default;
+                const {
+                    guiInitialState,
+                    guiMiddleware,
+                    initFullScreen,
+                    initPlayer,
+                    initTutorialLibrary
+                } = guiRedux;
+                const {ScratchPaintReducer} = require('scratch-paint');
 
-            const reducer = combineReducers({
-                locales: localesReducer,
-                scratchGui: guiReducer,
-                scratchPaint: ScratchPaintReducer
-            });
-            this.store = createStore(
-                reducer,
-                {
+                let initializedGui = guiInitialState;
+                if (props.isFullScreen || props.isPlayerOnly) {
+                    if (props.isFullScreen) {
+                        initializedGui = initFullScreen(initializedGui);
+                    }
+                    if (props.isPlayerOnly) {
+                        initializedGui = initPlayer(initializedGui);
+                    }
+                } else {
+                    const tutorialId = detectTutorialId();
+                    // handle ?tutorial=all for beta
+                    // if we decide to keep this for www, functionality should move to
+                    // setActiveCards in the GUI container
+                    if (tutorialId === 'all') initializedGui = initTutorialLibrary(initializedGui);
+                    if (tutorialId) this.state.tutorial = true;
+                }
+                reducers = {
+                    locales: localesReducer,
+                    scratchGui: guiReducer,
+                    scratchPaint: ScratchPaintReducer
+                };
+                initialState = {
                     locales: initializedLocales,
                     scratchGui: initializedGui
-                },
-                enhancer);
+                };
+                enhancer = composeEnhancers(guiMiddleware);
+            }
+            const reducer = combineReducers(reducers);
+            this.store = createStore(
+                reducer,
+                initialState,
+                enhancer
+            );
         }
         componentDidUpdate (prevProps) {
+            if (localesOnly) return;
             if (prevProps.isPlayerOnly !== this.props.isPlayerOnly) {
                 this.store.dispatch(setPlayer(this.props.isPlayerOnly));
             }
@@ -68,10 +109,13 @@ const AppStateHOC = function (WrappedComponent) {
                 isPlayerOnly, // eslint-disable-line no-unused-vars
                 ...componentProps
             } = this.props;
+            if (this.state.tutorial) componentProps.hideIntro = true;
             return (
                 <Provider store={this.store}>
                     <ConnectedIntlProvider>
-                        <WrappedComponent {...componentProps} />
+                        <WrappedComponent
+                            {...componentProps}
+                        />
                     </ConnectedIntlProvider>
                 </Provider>
             );

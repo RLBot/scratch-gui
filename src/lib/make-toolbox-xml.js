@@ -374,7 +374,7 @@ const sound = function (isStage, targetId) {
                 </shadow>
             </value>
         </block>
-        <block id="volume" type="sound_volume"/>
+        <block id="${targetId}_volume" type="sound_volume"/>
         ${categorySeparator}
     </category>
     `;
@@ -696,7 +696,7 @@ const operators = function () {
         <block type="operator_join">
             <value name="STRING1">
                 <shadow type="text">
-                    <field name="TEXT">${apple}</field>
+                    <field name="TEXT">${apple} </field>
                 </shadow>
             </value>
             <value name="STRING2">

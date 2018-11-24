@@ -53,20 +53,24 @@ class GUI extends React.Component {
 
         fetch('/static/rlbot-default-project.sb3').then(response => {
 
-            response.arrayBuffer().then(buffer => {
-                self.props.vm.loadProject(buffer)
-                    .then(() => {
-                        self.setState({loading: false}, () => {
-                            self.props.vm.setCompatibilityMode(false); // false to run at 60 fps
-                            self.props.vm.start();
+            setTimeout(() => {
+                response.arrayBuffer().then(buffer => {
+                    self.props.vm.loadProject(buffer)
+                        .then(() => {
+                            self.setState({loading: false}, () => {
+                                self.props.vm.setCompatibilityMode(false); // false to run at 60 fps
+                                self.props.vm.start();
+                            });
+                        })
+                        .catch(e => {
+                            // Need to catch this error and update component state so that
+                            // error page gets rendered if project failed to load
+                            self.setState({loadingError: true, errorMessage: e});
                         });
-                    })
-                    .catch(e => {
-                        // Need to catch this error and update component state so that
-                        // error page gets rendered if project failed to load
-                        self.setState({loadingError: true, errorMessage: e});
-                    });
-            });
+                });
+            }, 1000);
+
+            
         });
     }
     componentDidUpdate (prevProps) {

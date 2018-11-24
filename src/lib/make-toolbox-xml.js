@@ -645,6 +645,23 @@ const operators = function () {
             </value>
         </block>
         ${blockSeparator}
+        <block type="operator_clamp">
+            <value name="VALUE">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+            <value name="MIN">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+            <value name="MAX">
+                <shadow type="math_number">
+                    <field name="NUM"/>
+                </shadow>
+            </value>
+        </block>
         <block type="operator_random">
             <value name="FROM">
                 <shadow type="math_number">

@@ -49,6 +49,7 @@ class GUI extends React.Component {
     componentDidMount () {
         this.setReduxTitle(this.props.projectTitle);
         this.props.onStorageInit(storage);
+        var self = this;
 
         fetch('/static/rlbot-default-project.sb3').then(response => {
 

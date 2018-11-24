@@ -20,6 +20,7 @@ Visit their README files for more information.
    - If you already have it, update to the latest version or you'll get bad problems like I did.
    - Also update npm: `npm install -g npm`
 1. Run `npm install -g npm-install-peers`
+1. Run `npm-install-peers`. If you have trouble with this, try deleting package-lock.json.
 1. Make sure you're running Python 2.7
 1. Run `npm install` from this directory.
 

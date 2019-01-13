@@ -186,6 +186,34 @@ class MenuBar extends React.Component {
         this.props.vm.emitTargetsUpdate();
     }
 
+    handleSeleniumSb3(evt) {
+        const self = this;
+        
+        const response = self.seleniumSb3Input.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function() {
+            var buffer = this.result;
+            self.props.vm.loadProject(buffer)
+                    .then(() => {
+                        // TODO: This setState might not work well in menu-bar,
+                        // it was copied from gui.jsx
+                        self.setState({loading: false}, () => {
+                            self.props.vm.setCompatibilityMode(false); // false to run at 60 fps
+                            self.props.vm.start();
+                            self.props.vm.greenFlag();
+                        });
+                    })
+                    .catch(e => {
+                        // TODO: This setState might not work well in menu-bar,
+                        // it was copied from gui.jsx
+                        self.setState({loadingError: true, errorMessage: e});
+                    });
+        
+          }
+        reader.readAsArrayBuffer(response);
+    }
+
     componentDidMount() {
         let self = this;
         this.interval = setInterval(() => {
@@ -624,6 +652,14 @@ class MenuBar extends React.Component {
                         <input type="checkbox" defaultChecked={self.state.p4}
                                onChange={ (evt) => self.filterPlayer(3, evt.target.checked) } />
                     </label>
+                </div>
+
+                <div style={{'display': 'none'}}>
+                    <input 
+                    id="sb3-selenium-uploader" 
+                    type="file" 
+                    ref={(ref) => { self.seleniumSb3Input = ref; }}
+                    onChange={ (evt) => self.handleSeleniumSb3(evt) } />
                 </div>
 
                 {/* show the proper UI in the account menu, given whether the user is

@@ -106,21 +106,19 @@ const SpriteSelectorComponent = function (props) {
                 onChangeY={onChangeSpriteY}
             />
 
-            <Box className={styles.scrollWrapper}>
-                <SpriteList
-                    editingTarget={editingTarget}
-                    hoveredTarget={hoveredTarget}
-                    items={Object.keys(sprites).map(id => sprites[id])}
-                    raised={raised}
-                    selectedId={selectedId}
-                    onDeleteSprite={onDeleteSprite}
-                    onDrop={onDrop}
-                    onDuplicateSprite={onDuplicateSprite}
-                    onExportSprite={onExportSprite}
-                    onSelectSprite={onSelectSprite}
-                    devMode={devMode}
-                />
-            </Box>
+            <SpriteList
+                editingTarget={editingTarget}
+                hoveredTarget={hoveredTarget}
+                items={Object.keys(sprites).map(id => sprites[id])}
+                raised={raised}
+                selectedId={selectedId}
+                onDeleteSprite={onDeleteSprite}
+                onDrop={onDrop}
+                onDuplicateSprite={onDuplicateSprite}
+                onExportSprite={onExportSprite}
+                onSelectSprite={onSelectSprite}
+                devMode={devMode}
+            />
             <ActionMenu
                 className={styles.addButton}
                 img={spriteIcon}

@@ -8,7 +8,6 @@ import VMScratchBlocks from '../lib/blocks';
 import VM from 'scratch-vm';
 import classNames from 'classnames';
 
-import analytics from '../lib/analytics';
 import log from '../lib/log.js';
 import Prompt from './prompt.jsx';
 import BlocksComponent from '../components/blocks/blocks.jsx';
@@ -119,8 +118,6 @@ class Blocks extends React.Component {
         if (this.props.isVisible) {
             this.setLocale();
         }
-
-        analytics.pageview('/editors/blocks');
     }
     shouldComponentUpdate (nextProps, nextState) {
         return (
@@ -241,7 +238,7 @@ class Blocks extends React.Component {
         this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
         this.props.vm.runtime.rlbotManager.addListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
         this.props.vm.addListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
-        this.props.vm.addListener('PERIPHERAL_DISCONNECT_ERROR', this.handleStatusButtonUpdate);
+        this.props.vm.addListener('PERIPHERAL_DISCONNECTED', this.handleStatusButtonUpdate);
         this.props.vm.runtime.addListener('PROJECT_STOP_ALL', this.handleStopAll);
     }
     detachVM () {
@@ -256,7 +253,7 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
         this.props.vm.runtime.rlbotManager.removeListener('rlbotFilterUpdate', this.onRlbotFilterUpdate);
         this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
-        this.props.vm.removeListener('PERIPHERAL_DISCONNECT_ERROR', this.handleStatusButtonUpdate);
+        this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.handleStatusButtonUpdate);
         this.props.vm.runtime.removeListener('PROJECT_STOP_ALL', this.handleStopAll);
     }
 
@@ -273,7 +270,7 @@ class Blocks extends React.Component {
     }
 
     onTargetsUpdate () {
-        if (this.props.vm.editingTarget) {
+        if (this.props.vm.editingTarget && this.workspace.getFlyout()) {
             ['glide', 'move', 'set'].forEach(prefix => {
                 this.updateToolboxBlockValue(`${prefix}x`, Math.round(this.props.vm.editingTarget.x).toString());
                 this.updateToolboxBlockValue(`${prefix}y`, Math.round(this.props.vm.editingTarget.y).toString());
@@ -357,7 +354,9 @@ class Blocks extends React.Component {
             // incomplete. Throwing the error would keep things like setting the
             // correct editing target from happening which can interfere with
             // some blocks and processes in the vm.
-            error.message = `Workspace Update Error: ${error.message}`;
+            if (error.message) {
+                error.message = `Workspace Update Error: ${error.message}`;
+            }
             log.error(error);
         }
         this.workspace.addChangeListener(this.props.vm.blockListener);
@@ -425,6 +424,7 @@ class Blocks extends React.Component {
             optVarType !== this.ScratchBlocks.BROADCAST_MESSAGE_VARIABLE_TYPE &&
             p.prompt.title !== this.ScratchBlocks.Msg.RENAME_VARIABLE_MODAL_TITLE &&
             p.prompt.title !== this.ScratchBlocks.Msg.RENAME_LIST_MODAL_TITLE;
+        p.prompt.showCloudOption = (optVarType === this.ScratchBlocks.SCALAR_VARIABLE_TYPE) && this.props.canUseCloud;
         this.setState(p);
     }
     handleConnectionModalStart (extensionId) {
@@ -498,10 +498,10 @@ class Blocks extends React.Component {
                 />
                 {this.state.prompt ? (
                     <Prompt
+                        defaultValue={this.state.prompt.defaultValue}
                         isStage={vm.runtime.getEditingTarget().isStage}
                         label={this.state.prompt.message}
-                        placeholder={this.state.prompt.defaultValue}
-                        showCloudOption={canUseCloud}
+                        showCloudOption={this.state.prompt.showCloudOption}
                         showVariableOptions={this.state.prompt.showVariableOptions}
                         title={this.state.prompt.title}
                         vm={vm}

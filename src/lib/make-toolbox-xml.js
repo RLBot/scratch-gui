@@ -71,6 +71,11 @@ const motion = function (isStage, target) {
                 <shadow type="math_boolean"></shadow>
             </value>
         </block>
+        <block type="motion_setuseitem">
+            <value name="BIT">
+                <shadow type="math_boolean"></shadow>
+            </value>
+        </block>
         ${blockSeparator}
         <block id="${targetId}_xposition" type="motion_xposition"/>
         <block id="${targetId}_yposition" type="motion_yposition"/>

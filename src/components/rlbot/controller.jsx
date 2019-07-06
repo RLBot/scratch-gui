@@ -43,6 +43,7 @@ class Controller extends React.Component {
                     <span className={classNames(styles.button, this.state.controller.jump ? styles.on : null)}>Jump</span>
                     <span className={classNames(styles.button, this.state.controller.boost ? styles.on : null)}>Boost</span>
                     <span className={classNames(styles.button, this.state.controller.handbrake ? styles.on : null)}>Handbrake</span>
+                    <span className={classNames(styles.button, this.state.controller.useItem ? styles.on : null)}>Use Item</span>
                 </div>
                 <Meter val={this.state.controller.throttle} label='Throttle' />
                 <Meter val={this.state.controller.steer} label='Steering' />

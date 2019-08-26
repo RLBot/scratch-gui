@@ -51,6 +51,14 @@ class GUI extends React.Component {
         this.props.onStorageInit(storage);
         var self = this;
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const awaitBotFile = urlParams.get('awaitBotFile') === '1';
+        if (awaitBotFile) {
+            // Don't load the default project because we're expecting an external program to
+            // load a specific .sb3 file in a moment, and we don't want to conflict with that.
+            return;
+        }
+
         fetch('/static/rlbot-default-project.sb3').then(response => {
 
             setTimeout(() => {

@@ -361,6 +361,10 @@ class MenuBar extends React.Component {
                 {remixMessage}
             </Button>
         );
+
+        const vm = this.props.vm;
+        const rlbotManager = vm.runtime.rlbotManager;
+
         return (
             <Box
                 className={classNames(
@@ -443,6 +447,20 @@ class MenuBar extends React.Component {
                                     ) : []}
                                 </MenuSection>
                                 <MenuSection>
+                                    <MenuItem onClick={this.handleCloseFileMenuAndThen(() => {
+                                        vm.saveProjectSb3().then((content) => {
+                                                if (rlbotManager.saveProject(content)) {
+                                                    alert("Saved project!");
+                                                } else {
+                                                    alert("WARNING: Failed to save! Are you connected?");
+                                                }
+                                            })})}>
+                                        <FormattedMessage
+                                                defaultMessage="Save to RLBot Project"
+                                                description="Menu bar item for saving to your RLBot project"
+                                                id="gui.menuBar.saveToRlbotProject"
+                                            />
+                                    </MenuItem>
                                     <SBFileUploader onUpdateProjectTitle={this.props.onUpdateProjectTitle}>
                                         {(className, renderFileInput, loadProject) => (
                                             <MenuItem

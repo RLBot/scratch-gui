@@ -12,6 +12,8 @@ var autoprefixer = require('autoprefixer');
 var postcssVars = require('postcss-simple-vars');
 var postcssImport = require('postcss-import');
 
+const STATIC_PATH = process.env.STATIC_PATH || '/static';
+
 const base = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: 'cheap-module-source-map',
@@ -23,11 +25,8 @@ const base = {
     },
     output: {
         library: 'GUI',
-        filename: '[name].js'
-    },
-    externals: {
-        React: 'react',
-        ReactDOM: 'react-dom'
+        filename: '[name].js',
+        chunkFilename: 'chunks/[name].js'
     },
     resolve: {
         symlinks: false
@@ -36,7 +35,12 @@ const base = {
         rules: [{
             test: /\.jsx?$/,
             loader: 'babel-loader',
-            include: [path.resolve(__dirname, 'src'), /node_modules[\\/]scratch-[^\\/]+[\\/]src/],
+            include: [
+                path.resolve(__dirname, 'src'),
+                /node_modules[\\/]scratch-[^\\/]+[\\/]src/,
+                /node_modules[\\/]pify/,
+                /node_modules[\\/]@vernier[\\/]godirect/
+            ],
             options: {
                 // Explicitly disable babelrc so we don't catch various config
                 // in much lower dependencies.
@@ -48,10 +52,7 @@ const base = {
                     ['react-intl', {
                         messagesDir: './translations/messages/'
                     }]],
-                presets: [
-                    ['@babel/preset-env', {targets: {browsers: ['last 3 versions', 'Safari >= 8', 'iOS >= 8']}}],
-                    '@babel/preset-react'
-                ]
+                presets: ['@babel/preset-env', '@babel/preset-react']
             }
         },
         {
@@ -74,9 +75,7 @@ const base = {
                         return [
                             postcssImport,
                             postcssVars,
-                            autoprefixer({
-                                browsers: ['last 3 versions', 'Safari >= 8', 'iOS >= 8']
-                            })
+                            autoprefixer
                         ];
                     }
                 }
@@ -93,6 +92,10 @@ const base = {
     plugins: []
 };
 
+if (!process.env.CI) {
+    base.plugins.push(new webpack.ProgressPlugin());
+}
+
 module.exports = [
     // to run editor examples
     defaultsDeep({}, base, {
@@ -106,10 +109,6 @@ module.exports = [
         output: {
             path: path.resolve(__dirname, 'build'),
             filename: '[name].js'
-        },
-        externals: {
-            React: 'react',
-            ReactDOM: 'react-dom'
         },
         module: {
             rules: base.module.rules.concat([
@@ -190,11 +189,12 @@ module.exports = [
             },
             output: {
                 libraryTarget: 'umd',
-                path: path.resolve('dist')
+                path: path.resolve('dist'),
+                publicPath: `${STATIC_PATH}/`
             },
             externals: {
-                React: 'react',
-                ReactDOM: 'react-dom'
+                'react': 'react',
+                'react-dom': 'react-dom'
             },
             module: {
                 rules: base.module.rules.concat([
@@ -203,7 +203,7 @@ module.exports = [
                         loader: 'file-loader',
                         options: {
                             outputPath: 'static/assets/',
-                            publicPath: '/static/assets/'
+                            publicPath: `${STATIC_PATH}/assets/`
                         }
                     }
                 ])
@@ -216,6 +216,12 @@ module.exports = [
                 new CopyWebpackPlugin([{
                     from: 'extension-worker.{js,js.map}',
                     context: 'node_modules/scratch-vm/dist/web'
+                }]),
+                // Include library JSON files for scratch-desktop to use for downloading
+                new CopyWebpackPlugin([{
+                    from: 'src/lib/libraries/*.json',
+                    to: 'libraries',
+                    flatten: true
                 }])
             ])
         })) : []

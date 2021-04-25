@@ -3,9 +3,9 @@
 
 .inline-message {
     color: $ui-white;
-    font-family: "Helvetica Neue";
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     align-items: center;
     font-size: .8125rem;
 }

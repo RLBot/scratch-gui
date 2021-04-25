@@ -4,9 +4,9 @@ const categorySeparator = '<sep gap="36"/>';
 
 const blockSeparator = '<sep gap="36"/>'; // At default scale, about 28px
 
-const motion = function (isStage, target) {
+/* eslint-disable no-unused-vars */
+const motion = function (isInitialSetup, isStage, target) {
     const targetId = target ? target.id : null;
-
     const stageSelected = ScratchBlocks.ScratchMsgs.translate(
         'MOTION_STAGE_SELECTED',
         'Stage selected: no motion blocks'
@@ -206,7 +206,19 @@ const motion = function (isStage, target) {
     `;
 };
 
-const looks = function (isStage, targetId) {
+const xmlEscape = function (unsafe) {
+    return unsafe.replace(/[<>&'"]/g, c => {
+        switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '\'': return '&apos;';
+        case '"': return '&quot;';
+        }
+    });
+};
+
+const looks = function (isInitialSetup, isStage, targetId, costumeName, backdropName) {
     const hello = ScratchBlocks.ScratchMsgs.translate('LOOKS_HELLO', 'Hello!');
     const hmm = ScratchBlocks.ScratchMsgs.translate('LOOKS_HMM', 'Hmm...');
     return `
@@ -255,25 +267,33 @@ const looks = function (isStage, targetId) {
         ${isStage ? `
             <block type="looks_switchbackdropto">
                 <value name="BACKDROP">
-                    <shadow type="looks_backdrops"/>
+                    <shadow type="looks_backdrops">
+                        <field name="BACKDROP">${backdropName}</field>
+                    </shadow>
                 </value>
             </block>
             <block type="looks_switchbackdroptoandwait">
                 <value name="BACKDROP">
-                    <shadow type="looks_backdrops"/>
+                    <shadow type="looks_backdrops">
+                        <field name="BACKDROP">${backdropName}</field>
+                    </shadow>
                 </value>
             </block>
             <block type="looks_nextbackdrop"/>
         ` : `
             <block id="${targetId}_switchcostumeto" type="looks_switchcostumeto">
                 <value name="COSTUME">
-                    <shadow type="looks_costume"/>
+                    <shadow type="looks_costume">
+                        <field name="COSTUME">${costumeName}</field>
+                    </shadow>
                 </value>
             </block>
             <block type="looks_nextcostume"/>
             <block type="looks_switchbackdropto">
                 <value name="BACKDROP">
-                    <shadow type="looks_backdrops"/>
+                    <shadow type="looks_backdrops">
+                        <field name="BACKDROP">${backdropName}</field>
+                    </shadow>
                 </value>
             </block>
             <block type="looks_nextbackdrop"/>
@@ -335,17 +355,21 @@ const looks = function (isStage, targetId) {
     `;
 };
 
-const sound = function (isStage, targetId) {
+const sound = function (isInitialSetup, isStage, targetId, soundName) {
     return `
     <category name="%{BKY_CATEGORY_SOUND}" id="sound" colour="#D65CD6" secondaryColour="#BD42BD">
         <block id="${targetId}_sound_playuntildone" type="sound_playuntildone">
             <value name="SOUND_MENU">
-                <shadow type="sound_sounds_menu"/>
+                <shadow type="sound_sounds_menu">
+                    <field name="SOUND_MENU">${soundName}</field>
+                </shadow>
             </value>
         </block>
         <block id="${targetId}_sound_play" type="sound_play">
             <value name="SOUND_MENU">
-                <shadow type="sound_sounds_menu"/>
+                <shadow type="sound_sounds_menu">
+                    <field name="SOUND_MENU">${soundName}</field>
+                </shadow>
             </value>
         </block>
         <block type="sound_stopallsounds"/>
@@ -386,7 +410,7 @@ const sound = function (isStage, targetId) {
     `;
 };
 
-const events = function (isStage) {
+const events = function (isInitialSetup, isStage) {
     return `
     <category name="%{BKY_CATEGORY_EVENTS}" id="events" colour="#FFD500" secondaryColour="#CC9900">
         <block type="event_whenflagclicked"/>
@@ -425,7 +449,7 @@ const events = function (isStage) {
     `;
 };
 
-const control = function (isStage) {
+const control = function (isInitialSetup, isStage) {
     return `
     <category name="%{BKY_CATEGORY_CONTROL}" id="control" colour="#FFAB19" secondaryColour="#CF8B17">
         <block type="control_wait">
@@ -472,7 +496,7 @@ const control = function (isStage) {
     `;
 };
 
-const sensing = function (isStage) {
+const sensing = function (isInitialSetup, isStage) {
     const name = ScratchBlocks.ScratchMsgs.translate('SENSING_ASK_TEXT', 'What\'s your name?');
     return `
     <category name="%{BKY_CATEGORY_SENSING}" id="sensing" colour="#4CBFE6" secondaryColour="#2E8EB8">
@@ -514,13 +538,15 @@ const sensing = function (isStage) {
                 <shadow id="sensing_vectorof_object_menu" type="sensing_of_object_menu"/>
             </value>
         </block>
-        <block id="askandwait" type="sensing_askandwait">
-            <value name="QUESTION">
-                <shadow type="text">
-                    <field name="TEXT">${name}</field>
-                </shadow>
-            </value>
-        </block>
+        ${isInitialSetup ? '' : `
+            <block id="askandwait" type="sensing_askandwait">
+                <value name="QUESTION">
+                    <shadow type="text">
+                        <field name="TEXT">${name}</field>
+                    </shadow>
+                </value>
+            </block>
+        `}
         <block id="answer" type="sensing_answer"/>
         ${blockSeparator}
         <block type="sensing_keypressed">
@@ -557,7 +583,7 @@ const sensing = function (isStage) {
     `;
 };
 
-const operators = function () {
+const operators = function (isInitialSetup) {
     const apple = ScratchBlocks.ScratchMsgs.translate('OPERATORS_JOIN_APPLE', 'apple');
     const banana = ScratchBlocks.ScratchMsgs.translate('OPERATORS_JOIN_BANANA', 'banana');
     const letter = ScratchBlocks.ScratchMsgs.translate('OPERATORS_LETTEROF_APPLE', 'a');
@@ -723,49 +749,51 @@ const operators = function () {
         <block type="operator_true" />
         <block type="operator_false" />
         ${blockSeparator}
-        <block type="operator_join">
-            <value name="STRING1">
+        ${isInitialSetup ? '' : `
+            <block type="operator_join">
+                <value name="STRING1">
+                    <shadow type="text">
+                        <field name="TEXT">${apple} </field>
+                    </shadow>
+                </value>
+                <value name="STRING2">
+                    <shadow type="text">
+                        <field name="TEXT">${banana}</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="operator_letter_of">
+                <value name="LETTER">
+                    <shadow type="math_whole_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="STRING">
+                    <shadow type="text">
+                        <field name="TEXT">${apple}</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="operator_length">
+                <value name="STRING">
+                    <shadow type="text">
+                        <field name="TEXT">${apple}</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="operator_contains" id="operator_contains">
+              <value name="STRING1">
                 <shadow type="text">
-                    <field name="TEXT">${apple} </field>
+                  <field name="TEXT">${apple}</field>
                 </shadow>
-            </value>
-            <value name="STRING2">
+              </value>
+              <value name="STRING2">
                 <shadow type="text">
-                    <field name="TEXT">${banana}</field>
+                  <field name="TEXT">${letter}</field>
                 </shadow>
-            </value>
-        </block>
-        <block type="operator_letter_of">
-            <value name="LETTER">
-                <shadow type="math_whole_number">
-                    <field name="NUM">1</field>
-                </shadow>
-            </value>
-            <value name="STRING">
-                <shadow type="text">
-                    <field name="TEXT">${apple}</field>
-                </shadow>
-            </value>
-        </block>
-        <block type="operator_length">
-            <value name="STRING">
-                <shadow type="text">
-                    <field name="TEXT">${apple}</field>
-                </shadow>
-            </value>
-        </block>
-        <block type="operator_contains" id="operator_contains">
-          <value name="STRING1">
-            <shadow type="text">
-              <field name="TEXT">${apple}</field>
-            </shadow>
-          </value>
-          <value name="STRING2">
-            <shadow type="text">
-              <field name="TEXT">${letter}</field>
-            </shadow>
-          </value>
-        </block>
+              </value>
+            </block>
+        `}
         ${blockSeparator}
         <block type="operator_mod">
             <value name="NUM1">
@@ -822,34 +850,71 @@ const myBlocks = function () {
     </category>
     `;
 };
+/* eslint-enable no-unused-vars */
 
 const xmlOpen = '<xml style="display: none">';
 const xmlClose = '</xml>';
 
 /**
- * @param {!boolean} isStage - Whether the toolbox is for a stage-type target.
- * @param target - the current editing target.
+ * @param {!boolean} isInitialSetup - Whether the toolbox is for initial setup. If the mode is "initial setup",
+ * blocks with localized default parameters (e.g. ask and wait) should not be loaded. (LLK/scratch-gui#5445)
+ * @param {?boolean} isStage - Whether the toolbox is for a stage-type target. This is always set to true
+ * when isInitialSetup is true.
+ * @param {?string} target - The current editing target
+ * @param {?Array.<object>} categoriesXML - optional array of `{id,xml}` for categories. This can include both core
+ * and other extensions: core extensions will be placed in the normal Scratch order; others will go at the bottom.
+ * @property {string} id - the extension / category ID.
+ * @property {string} xml - the `<category>...</category>` XML for this extension / category.
+ * @param {?string} costumeName - The name of the default selected costume dropdown.
+ * @param {?string} backdropName - The name of the default selected backdrop dropdown.
+ * @param {?string} soundName -  The name of the default selected sound dropdown.
  * @returns {string} - a ScratchBlocks-style XML document for the contents of the toolbox.
  */
-const makeToolboxXML = function (isStage, target, categoriesXML) {
+const makeToolboxXML = function (isInitialSetup, isStage = true, target, categoriesXML = [],
+    costumeName = '', backdropName = '', soundName = '') {
+    isStage = isInitialSetup || isStage;
     const gap = [categorySeparator];
     const targetId = target ? target.id : null;
 
+    costumeName = xmlEscape(costumeName);
+    backdropName = xmlEscape(backdropName);
+    soundName = xmlEscape(soundName);
+
+    categoriesXML = categoriesXML.slice();
+    const moveCategory = categoryId => {
+        const index = categoriesXML.findIndex(categoryInfo => categoryInfo.id === categoryId);
+        if (index >= 0) {
+            // remove the category from categoriesXML and return its XML
+            const [categoryInfo] = categoriesXML.splice(index, 1);
+            return categoryInfo.xml;
+        }
+        // return `undefined`
+    };
+    const motionXML = moveCategory('motion') || motion(isInitialSetup, isStage, target);
+    const looksXML = moveCategory('looks') || looks(isInitialSetup, isStage, targetId, costumeName, backdropName);
+    const soundXML = moveCategory('sound') || sound(isInitialSetup, isStage, targetId, soundName);
+    const eventsXML = moveCategory('event') || events(isInitialSetup, isStage, targetId);
+    const controlXML = moveCategory('control') || control(isInitialSetup, isStage, targetId);
+    const sensingXML = moveCategory('sensing') || sensing(isInitialSetup, isStage, targetId);
+    const operatorsXML = moveCategory('operators') || operators(isInitialSetup, isStage, targetId);
+    const variablesXML = moveCategory('data') || variables(isInitialSetup, isStage, targetId);
+    const myBlocksXML = moveCategory('procedures') || myBlocks(isInitialSetup, isStage, targetId);
+
     const everything = [
         xmlOpen,
-        motion(isStage, target), gap,
-        looks(isStage, targetId), gap,
-        sound(isStage, targetId), gap,
-        events(isStage, targetId), gap,
-        control(isStage, targetId), gap,
-        sensing(isStage, targetId), gap,
-        operators(isStage, targetId), gap,
-        variables(isStage, targetId), gap,
-        myBlocks(isStage, targetId)
+        motionXML, gap,
+        looksXML, gap,
+        soundXML, gap,
+        eventsXML, gap,
+        controlXML, gap,
+        sensingXML, gap,
+        operatorsXML, gap,
+        variablesXML, gap,
+        myBlocksXML
     ];
 
-    if (categoriesXML) {
-        everything.push(gap, categoriesXML);
+    for (const extensionCategory of categoriesXML) {
+        everything.push(gap, extensionCategory.xml);
     }
 
     everything.push(xmlClose);

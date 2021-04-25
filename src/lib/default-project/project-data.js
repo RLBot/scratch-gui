@@ -62,10 +62,7 @@ const projectData = translateFunction => {
                         md5ext: '83a9787d4cb6f3b7632b4ddfebf74367.wav'
                     }
                 ],
-                volume: 100,
-                tempo: 60,
-                videoTransparency: 50,
-                videoState: 'off'
+                volume: 100
             },
             {
                 isStage: false,
@@ -77,22 +74,22 @@ const projectData = translateFunction => {
                 currentCostume: 0,
                 costumes: [
                     {
-                        assetId: '09dc888b0b7df19f70d81588ae73420e',
+                        assetId: 'bcf454acf82e4504149f7ffe07081dbc',
                         name: translator(messages.costume, {index: 1}),
                         bitmapResolution: 1,
-                        md5ext: '09dc888b0b7df19f70d81588ae73420e.svg',
+                        md5ext: 'bcf454acf82e4504149f7ffe07081dbc.svg',
                         dataFormat: 'svg',
-                        rotationCenterX: 47,
-                        rotationCenterY: 55
+                        rotationCenterX: 48,
+                        rotationCenterY: 50
                     },
                     {
-                        assetId: '3696356a03a8d938318876a593572843',
+                        assetId: '0fb9be3e8397c983338cb71dc84d0b25',
                         name: translator(messages.costume, {index: 2}),
                         bitmapResolution: 1,
-                        md5ext: '3696356a03a8d938318876a593572843.svg',
+                        md5ext: '0fb9be3e8397c983338cb71dc84d0b25.svg',
                         dataFormat: 'svg',
-                        rotationCenterX: 47,
-                        rotationCenterY: 55
+                        rotationCenterX: 46,
+                        rotationCenterY: 53
                     }
                 ],
                 sounds: [

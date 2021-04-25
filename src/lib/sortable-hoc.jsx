@@ -24,8 +24,8 @@ const SortableHOC = function (WrappedComponent) {
             if (newProps.dragInfo.dragging && !this.props.dragInfo.dragging) {
                 // Drag just started, snapshot the sorted bounding boxes for sortables.
                 this.boxes = this.sortableRefs.map(el => el && el.getBoundingClientRect());
-                this.boxes.sort((a, b) => { // Sort top-to-bottom, left-to-right.
-                    if (a.top === b.top) return a.left - b.left;
+                this.boxes.sort((a, b) => { // Sort top-to-bottom, left-to-right (in LTR) / right-to-left (in RTL).
+                    if (a.top === b.top) return (a.left - b.left) * (this.props.isRtl ? -1 : 1);
                     return a.top - b.top;
                 });
                 if (!this.ref) {
@@ -68,16 +68,22 @@ const SortableHOC = function (WrappedComponent) {
             }
             return ordering;
         }
+
         getMouseOverIndex () {
             // MouseOverIndex is the index that the current drag wants to place the
             // the dragging object. Obviously only exists if there is a drag (i.e. currentOffset).
+            // Return null if outside the container, zero if there are no boxes.
             let mouseOverIndex = null;
             if (this.props.dragInfo.currentOffset) {
                 const {x, y} = this.props.dragInfo.currentOffset;
                 const {top, left, bottom, right} = this.containerBox;
                 if (x >= left && x <= right && y >= top && y <= bottom) {
-                    mouseOverIndex = indexForPositionOnList(
-                        this.props.dragInfo.currentOffset, this.boxes);
+                    if (this.boxes.length === 0) {
+                        mouseOverIndex = 0;
+                    } else {
+                        mouseOverIndex = indexForPositionOnList(
+                            this.props.dragInfo.currentOffset, this.boxes, this.props.isRtl);
+                    }
                 }
             }
             return mouseOverIndex;
@@ -119,11 +125,13 @@ const SortableHOC = function (WrappedComponent) {
             name: PropTypes.string.isRequired
         })),
         onClose: PropTypes.func,
-        onDrop: PropTypes.func
+        onDrop: PropTypes.func,
+        isRtl: PropTypes.bool
     };
 
     const mapStateToProps = state => ({
-        dragInfo: state.scratchGui.assetDrag
+        dragInfo: state.scratchGui.assetDrag,
+        isRtl: state.locales.isRtl
     });
 
     const mapDispatchToProps = () => ({});
